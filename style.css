@@ -1,0 +1,62 @@
+:root {
+    --glass: rgba(255, 255, 255, 0.1);
+    --border: rgba(255, 255, 255, 0.2);
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: radial-gradient(circle at top left, #1e3a8a, #0f172a);
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    perspective: 1000px; /* Required for 3D JS effects */
+    overflow-x: hidden;
+}
+
+.portal-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.glass-container {
+    display: grid;
+    /* This makes the cards responsive: at least 280px wide, max 2 columns */
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+    gap: 25px;
+    padding: 20px;
+    max-width: 1000px; /* Widened to accommodate more cards */
+    width: 90%;
+}
+
+.card {
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 35px;
+    text-decoration: none;
+    color: white;
+    text-align: center;
+    transition: box-shadow 0.3s ease, background 0.3s ease;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+.card:hover {
+    background: rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
+
+.icon { font-size: 3.5rem; margin-bottom: 15px; display: block; }
+h2 { margin: 10px 0; font-size: 1.4rem; letter-spacing: -0.5px; }
+p { font-size: 0.95rem; opacity: 0.7; line-height: 1.5; }
+
+/* Responsive for Mobile */
+@media (max-width: 650px) {
+    .glass-container { grid-template-columns: 1fr; }
+}

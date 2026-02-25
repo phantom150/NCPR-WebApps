@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCPR Officer Rotation Plan</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="header no-print">
+        <h1>NCPR Officer Rotation Plan</h1>
+        <div class="controls">
+            <button onclick="openAddModal()">+ Add/Edit Staff</button>
+            <button onclick="exportJSON()">Save JSON</button>
+            <label class="btn-upload">Load JSON <input type="file" id="importJson" accept=".json" onchange="importJSON(event)"></label>
+            <button onclick="exportCSV()">Export CSV</button>
+            <label class="btn-upload">Import CSV <input type="file" id="importCsv" accept=".csv" onchange="importCSV(event)"></label>
+            <button onclick="window.print()">Print</button>
+        </div>
+    </div>
+
+    <div class="legend no-print">
+        <div class="legend-item"><span class="box bg-summer"></span> Summer (Jun-Jul)</div>
+        <div class="legend-item"><span class="box bg-fall"></span> Fall (Aug-Dec)</div>
+        <div class="legend-item"><span class="box bg-spring"></span> Spring (Jan-May)</div>
+        <div class="legend-item" style="margin-left:20px;"><strong>Segments:</strong></div>
+        <div class="legend-item"><span class="box" style="background: repeating-linear-gradient(45deg, #ccc, #ccc 3px, #999 3px, #999 6px);"></span> Inbound T/O</div>
+        <div class="legend-item"><span class="box" style="background: #555;"></span> Active Billet</div>
+        <div class="legend-item"><span class="box" style="background: repeating-linear-gradient(-45deg, #333, #333 3px, #999 3px, #999 6px);"></span> Outbound T/O</div>
+        <div class="legend-item"><span class="box" style="background: #ffcc00;"></span> Skillbridge</div>
+        <div class="legend-item"><span class="box" style="background: #ff9999;"></span> Terminal Leave</div>
+    </div>
+
+    <div class="gantt-container" id="ganttContainer">
+        </div>
+
+    <div id="staffModal" class="modal no-print">
+        <div class="modal-content">
+            <h2 id="modalTitle">Add Staff Member</h2>
+            <form id="staffForm">
+                <input type="hidden" id="staffId">
+                <label>Name (Use "Unknown" for TBD): <input type="text" id="staffName" required></label>
+                <label>Unit: 
+                    <select id="staffUnit">
+                        <option value="UNC">UNC</option>
+                        <option value="Duke">Duke</option>
+                        <option value="NCSU">NCSU</option>
+                        <option value="NCPR">NCPR Consortium</option>
+                    </select>
+                </label>
+                <label>Billet / Designator: <input type="text" id="staffBillet" placeholder="e.g. SWO, Submarine, Aviator" required></label>
+                <label>Report Date (YYYY-MM): <input type="month" id="staffReport" required></label>
+                <label>TiHE Completion Date (YYYY-MM): <input type="month" id="staffTihe"></label>
+                <label>PRD / EAOS (YYYY-MM): <input type="month" id="staffPrd" required></label>
+                <label>Skillbridge Start (YYYY-MM): <input type="month" id="staffSkillbridge"></label>
+                <label>Terminal Leave Start (YYYY-MM): <input type="month" id="staffTerminal"></label>
+                
+                <div class="modal-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" onclick="closeModal()">Cancel</button>
+                    <button type="button" id="deleteBtn" style="background:var(--ncsu-red); display:none;" onclick="deleteStaff()">Delete</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

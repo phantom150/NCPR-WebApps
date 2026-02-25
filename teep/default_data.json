@@ -1,0 +1,480 @@
+{
+  "timeframe": {
+    "year": "2026",
+    "season": "Spring"
+  },
+  "events": [
+  {
+    "id": "1772053932133",
+    "title": "FDOC",
+    "unit": "UNC",
+    "startDate": "2026-01-07",
+    "endDate": "2026-01-07",
+    "category": "academic"
+  },
+  {
+    "id": "1772053947812",
+    "title": "iPRT",
+    "unit": "UNC",
+    "startDate": "2026-01-13",
+    "endDate": "2026-01-13",
+    "category": "military"
+  },
+  {
+    "id": "1772053964810",
+    "title": "Battalion Policies",
+    "unit": "UNC",
+    "startDate": "2026-01-15",
+    "endDate": "2026-01-15",
+    "category": "military"
+  },
+  {
+    "id": "1772053983090",
+    "title": "MLK Day",
+    "unit": "Other",
+    "startDate": "2026-01-19",
+    "endDate": "2026-01-19",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054007357",
+    "title": "Gen McChrystal",
+    "unit": "Duke",
+    "startDate": "2026-01-22",
+    "endDate": "2026-01-22",
+    "category": "military"
+  },
+  {
+    "id": "1772054023225",
+    "title": "Financial Brief",
+    "unit": "UNC",
+    "startDate": "2026-01-22",
+    "endDate": "2026-01-22",
+    "category": "military"
+  },
+  {
+    "id": "1772054035989",
+    "title": "Public Speaking",
+    "unit": "UNC",
+    "startDate": "2026-01-29",
+    "endDate": "2026-01-29",
+    "category": "military"
+  },
+  {
+    "id": "1772054054291",
+    "title": "Gen Brown",
+    "unit": "UNC",
+    "startDate": "2026-02-03",
+    "endDate": "2026-02-03",
+    "category": "military"
+  },
+  {
+    "id": "1772054060410",
+    "title": "Gen Brown",
+    "unit": "Duke",
+    "startDate": "2026-02-03",
+    "endDate": "2026-02-03",
+    "category": "military"
+  },
+  {
+    "id": "1772054075833",
+    "title": "Ethical Debates",
+    "unit": "UNC",
+    "startDate": "2026-02-05",
+    "endDate": "2026-02-05",
+    "category": "military"
+  },
+  {
+    "id": "1772054125224",
+    "title": "Notre Dame Conference",
+    "unit": "Other",
+    "startDate": "2026-02-05",
+    "endDate": "2026-02-08",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054176400",
+    "title": "UNC Vs. DUKE",
+    "unit": "UNC",
+    "startDate": "2026-02-07",
+    "endDate": "2026-02-07",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054181146",
+    "title": "UNC Vs. DUKE",
+    "unit": "Duke",
+    "startDate": "2026-02-07",
+    "endDate": "2026-02-07",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054204079",
+    "title": "Naval History Jeopardy",
+    "unit": "Duke",
+    "startDate": "2026-02-12",
+    "endDate": "2026-02-12",
+    "category": "military"
+  },
+  {
+    "id": "1772054221264",
+    "title": "Tulane",
+    "unit": "Other",
+    "startDate": "2026-02-13",
+    "endDate": "2026-02-15",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054239752",
+    "title": "Wellness Day",
+    "unit": "NCSU",
+    "startDate": "2026-02-17",
+    "endDate": "2026-02-17",
+    "category": "academic"
+  },
+  {
+    "id": "1772054256895",
+    "title": "Pres. NWC",
+    "unit": "Duke",
+    "startDate": "2026-02-17",
+    "endDate": "2026-02-17",
+    "category": "military"
+  },
+  {
+    "id": "1772054270590",
+    "title": "MCMAP",
+    "unit": "UNC",
+    "startDate": "2026-02-19",
+    "endDate": "2026-02-19",
+    "category": "military"
+  },
+  {
+    "id": "1772054283791",
+    "title": "Swimming",
+    "unit": "UNC",
+    "startDate": "2026-02-26",
+    "endDate": "2026-02-26",
+    "category": "military"
+  },
+  {
+    "id": "1772054301535",
+    "title": "CAPT Sievenpiper EDO Brief",
+    "unit": "UNC",
+    "startDate": "2026-03-05",
+    "endDate": "2026-03-05",
+    "category": "military"
+  },
+  {
+    "id": "1772054319568",
+    "title": "Spring Break",
+    "unit": "Duke",
+    "startDate": "2026-03-06",
+    "endDate": "2026-03-15",
+    "category": "academic"
+  },
+  {
+    "id": "1772054338638",
+    "title": "Tradition/Mess Nights History",
+    "unit": "UNC",
+    "startDate": "2026-03-12",
+    "endDate": "2026-03-12",
+    "category": "military"
+  },
+  {
+    "id": "1772054356302",
+    "title": "Spring Break",
+    "unit": "UNC",
+    "startDate": "2026-03-13",
+    "endDate": "2026-03-22",
+    "category": "academic"
+  },
+  {
+    "id": "1772054371446",
+    "title": "Spring Break",
+    "unit": "NCSU",
+    "startDate": "2026-03-14",
+    "endDate": "2026-03-22",
+    "category": "academic"
+  },
+  {
+    "id": "1772054384568",
+    "title": "Prof. Odam",
+    "unit": "Duke",
+    "startDate": "2026-03-17",
+    "endDate": "2026-03-17",
+    "category": "military"
+  },
+  {
+    "id": "1772054406277",
+    "title": "STRIPER Boards",
+    "unit": "UNC",
+    "startDate": "2026-03-23",
+    "endDate": "2026-03-25",
+    "category": "military"
+  },
+  {
+    "id": "1772054421853",
+    "title": "Tactical and Technical Proficiency",
+    "unit": "UNC",
+    "startDate": "2026-03-26",
+    "endDate": "2026-03-26",
+    "category": "military"
+  },
+  {
+    "id": "1772054440081",
+    "title": "FEX II",
+    "unit": "Other",
+    "startDate": "2026-03-27",
+    "endDate": "2026-03-29",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054453061",
+    "title": "Yale Conf.",
+    "unit": "Other",
+    "startDate": "2026-03-27",
+    "endDate": "2026-03-29",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054469308",
+    "title": "Prof. Fever",
+    "unit": "Duke",
+    "startDate": "2026-03-31",
+    "endDate": "2026-03-31",
+    "category": "military"
+  },
+  {
+    "id": "1772054488300",
+    "title": "Wellness Day",
+    "unit": "UNC",
+    "startDate": "2026-04-02",
+    "endDate": "2026-04-02",
+    "category": "academic"
+  },
+  {
+    "id": "1772054498940",
+    "title": "UNC Holiday",
+    "unit": "UNC",
+    "startDate": "2026-04-03",
+    "endDate": "2026-04-03",
+    "category": "academic"
+  },
+  {
+    "id": "1772054514292",
+    "title": "EASTER",
+    "unit": "Other",
+    "startDate": "2026-04-05",
+    "endDate": "2026-04-05",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054532507",
+    "title": "NAFAC Conference",
+    "unit": "UNC",
+    "startDate": "2026-04-06",
+    "endDate": "2026-04-08",
+    "category": "military"
+  },
+  {
+    "id": "1772054549140",
+    "title": "Sailing Practical",
+    "unit": "Duke",
+    "startDate": "2026-04-14",
+    "endDate": "2026-04-14",
+    "category": "military"
+  },
+  {
+    "id": "1772054566532",
+    "title": "RDML Van Poots",
+    "unit": "Duke",
+    "startDate": "2026-04-16",
+    "endDate": "2026-04-16",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054571669",
+    "title": "RDML Van Poots",
+    "unit": "UNC",
+    "startDate": "2026-04-16",
+    "endDate": "2026-04-16",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054588475",
+    "title": "Navy BCA",
+    "unit": "UNC",
+    "startDate": "2026-04-17",
+    "endDate": "2026-04-17",
+    "category": "military"
+  },
+  {
+    "id": "1772054600115",
+    "title": "Dining In",
+    "unit": "Other",
+    "startDate": "2026-04-17",
+    "endDate": "2026-04-17",
+    "category": "ncpr"
+  },
+  {
+    "id": "1772054618342",
+    "title": "MIDN CoC/Awards",
+    "unit": "Duke",
+    "startDate": "2026-04-21",
+    "endDate": "2026-04-21",
+    "category": "military"
+  },
+  {
+    "id": "1772054631747",
+    "title": "Official PRT",
+    "unit": "UNC",
+    "startDate": "2026-04-21",
+    "endDate": "2026-04-21",
+    "category": "military"
+  },
+  {
+    "id": "1772054643538",
+    "title": "CoC/Farewell Picnic",
+    "unit": "UNC",
+    "startDate": "2026-04-23",
+    "endDate": "2026-04-23",
+    "category": "military"
+  },
+  {
+    "id": "1772054667813",
+    "title": "Reading Period",
+    "unit": "Duke",
+    "startDate": "2026-04-24",
+    "endDate": "2026-04-26",
+    "category": "academic"
+  },
+  {
+    "id": "1772054678234",
+    "title": "Finals",
+    "unit": "Duke",
+    "startDate": "2026-04-27",
+    "endDate": "2026-05-03",
+    "category": "academic"
+  },
+  {
+    "id": "1772054700236",
+    "title": "Commencement",
+    "unit": "Duke",
+    "startDate": "2026-05-08",
+    "endDate": "2026-05-08",
+    "category": "academic"
+  },
+  {
+    "id": "1772054714522",
+    "title": "Commissioning",
+    "unit": "Duke",
+    "startDate": "2026-05-11",
+    "endDate": "2026-05-11",
+    "category": "military"
+  },
+  {
+    "id": "1772054763850",
+    "title": "LDOC",
+    "unit": "Duke",
+    "startDate": "2026-04-23",
+    "endDate": "2026-04-23",
+    "category": "academic"
+  },
+  {
+    "id": "1772054813628",
+    "title": "LDOC",
+    "unit": "NCSU",
+    "startDate": "2026-04-27",
+    "endDate": "2026-04-27",
+    "category": "academic"
+  },
+  {
+    "id": "1772054826298",
+    "title": "Reading Day",
+    "unit": "NCSU",
+    "startDate": "2026-04-29",
+    "endDate": "2026-04-29",
+    "category": "academic"
+  },
+  {
+    "id": "1772054839477",
+    "title": "Finals",
+    "unit": "NCSU",
+    "startDate": "2026-04-30",
+    "endDate": "2026-05-07",
+    "category": "academic"
+  },
+  {
+    "id": "1772054855395",
+    "title": "Commissioning",
+    "unit": "NCSU",
+    "startDate": "2026-05-08",
+    "endDate": "2026-05-08",
+    "category": "military"
+  },
+  {
+    "id": "1772054864408",
+    "title": "Commencement",
+    "unit": "NCSU",
+    "startDate": "2026-05-09",
+    "endDate": "2026-05-09",
+    "category": "academic"
+  },
+  {
+    "id": "1772054879804",
+    "title": "LDOC",
+    "unit": "UNC",
+    "startDate": "2026-04-27",
+    "endDate": "2026-04-27",
+    "category": "academic"
+  },
+  {
+    "id": "1772054893592",
+    "title": "Reading Days",
+    "unit": "UNC",
+    "startDate": "2026-04-28",
+    "endDate": "2026-04-28",
+    "category": "academic"
+  },
+  {
+    "id": "1772054903628",
+    "title": "Finals",
+    "unit": "UNC",
+    "startDate": "2026-04-30",
+    "endDate": "2026-04-30",
+    "category": "academic"
+  },
+  {
+    "id": "1772054921088",
+    "title": "Commissioning",
+    "unit": "UNC",
+    "startDate": "2026-05-08",
+    "endDate": "2026-05-08",
+    "category": "military"
+  },
+  {
+    "id": "1772054941028",
+    "title": "Commencement",
+    "unit": "UNC",
+    "startDate": "2026-05-09",
+    "endDate": "2026-05-09",
+    "category": "academic"
+  },
+  {
+    "id": "1772054976727",
+    "title": "LT Cuaycong CORTRAMID WEST",
+    "unit": "UNC",
+    "startDate": "2026-05-18",
+    "endDate": "2026-06-21",
+    "category": "other"
+  },
+  {
+    "id": "1772055006518",
+    "title": "LT Johnston LV",
+    "unit": "Duke",
+    "startDate": "2026-05-16",
+    "endDate": "2026-06-30",
+    "category": "other"
+  }
+  ]
+}

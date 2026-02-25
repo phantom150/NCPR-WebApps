@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCPR NROTC Org Chart Builder</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+</head>
+<body>
+
+    <div id="sidebar">
+        <h2>Chart Controls</h2>
+        
+        <div class="control-group">
+            <h3>View Toggles</h3>
+            <label><input type="checkbox" id="toggleDuke" checked> Show Duke Staff</label>
+            <label><input type="checkbox" id="toggleUNC" checked> Show UNC Staff</label>
+            <label><input type="checkbox" id="toggleNCSU" checked> Show NCSU Staff</label>
+            <label><input type="checkbox" id="toggleAdmin" checked> Show University Admins</label>
+        </div>
+
+        <div class="control-group">
+            <h3>Actions</h3>
+            <button onclick="exportJSON()">Save to JSON</button>
+            <button onclick="window.print()">Print Chart</button>
+            <div style="margin-top: 10px;">
+                <label style="font-size: 0.9em; display: block; margin-bottom: 5px;">Load Existing JSON:</label>
+                <input type="file" id="fileInput" accept=".json" onchange="importJSON(event)">
+            </div>
+        </div>
+
+        <div class="control-group">
+            <h3 id="formTitle">Add New Staff</h3>
+            <form id="staffForm" onsubmit="saveStaff(event)">
+                <input type="hidden" id="staffId">
+                
+                <label>Name</label>
+                <input type="text" id="staffName" required>
+                
+                <label>Title/Position</label>
+                <input type="text" id="staffTitle" required>
+                
+                <label>Unit</label>
+                <select id="staffUnit">
+                    <option value="NCPR">NCPR (Consortium Wide)</option>
+                    <option value="Duke">Duke</option>
+                    <option value="UNC">UNC</option>
+                    <option value="NCSU">NCSU</option>
+                </select>
+
+                <label>Role Type</label>
+                <select id="staffRole">
+                    <option value="Military">Military Chain of Command</option>
+                    <option value="Admin">University Administrator</option>
+                </select>
+
+                <label>Reports To (Hold Ctrl/Cmd to select multiple)</label>
+                <select id="staffParent" multiple size="5">
+                    <option value="">-- No Parent (Root) --</option>
+                    </select>
+
+                <div style="display: flex; gap: 10px; margin-top: 15px;">
+                    <button type="submit" id="saveBtn">Add Staff</button>
+                    <button type="button" onclick="resetForm()">Clear</button>
+                </div>
+            </form>
+        </div>
+
+        <div class="control-group">
+            <h3>Staff List</h3>
+            <div id="staffList"></div>
+        </div>
+    </div>
+
+    <div id="main-content">
+        <div id="mynetwork"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

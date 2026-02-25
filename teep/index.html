@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NCPR NROTC TEEP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="controls no-print">
+        <div class="control-group timeframe-controls">
+            <h3>Timeframe & Filter</h3>
+            <button onclick="changeSemester(-1)">◀ Prev Semester</button>
+            <select id="start-season" onchange="updateGrid()">
+                <option value="Fall">Fall (Aug-Dec)</option>
+                <option value="Spring">Spring (Jan-May)</option>
+                <option value="Summer">Summer (Jun-Jul)</option>
+            </select>
+            <input type="number" id="start-year" value="2025" min="2020" max="2050" onchange="updateGrid()">
+            <button onclick="changeSemester(1)">Next Semester ▶</button>
+            
+            <select id="day-filter" onchange="updateGrid()" style="margin-left: 15px;">
+                <option value="all">Show All (Whole Week)</option>
+                <option value="weekdays">Show Weekdays Only</option>
+                <option value="weekends">Show Weekends Only</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <h3 id="form-header">Add Event</h3>
+            <input type="text" id="event-title" placeholder="Event Title">
+            <select id="event-unit">
+                <option value="UNC">UNC</option>
+                <option value="Duke">Duke</option>
+                <option value="NCSU">NCSU</option>
+                <option value="Other">Other/NCPR</option>
+            </select>
+            <label style="font-size:12px; margin-left:5px;">Start:</label>
+            <input type="date" id="event-start-date">
+            <label style="font-size:12px; margin-left:5px;">End (Opt):</label>
+            <input type="date" id="event-end-date">
+            <select id="event-category">
+                <option value="academic">Unit Specific Academic</option>
+                <option value="military">Unit Specific Military</option>
+                <option value="ncpr">NCPR Wide</option>
+                <option value="other">Other</option>
+            </select>
+            <button id="submit-btn" onclick="submitEvent()">Add Event</button>
+            <button id="cancel-btn" onclick="cancelEdit()" style="display: none;">Cancel</button>
+        </div>
+
+        <div class="control-group">
+            <h3>Data & Export</h3>
+            <input type="file" id="load-file" accept=".json" style="display: none;" onchange="loadJSON(event)">
+            <button onclick="document.getElementById('load-file').click()">Load JSON</button>
+            <button onclick="saveJSON()">Save JSON</button>
+            <button onclick="window.print()">Print TEEP</button>
+        </div>
+    </div>
+
+    <div id="teep-wrapper">
+        <div id="teep-container">
+            </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

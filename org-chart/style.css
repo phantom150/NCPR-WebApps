@@ -1,0 +1,32 @@
+* { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { margin: 0; padding: 0; display: flex; height: 100vh; background: #f4f6f9; }
+
+/* Layout */
+#sidebar { width: 350px; background: #ffffff; border-right: 1px solid #ddd; padding: 20px; overflow-y: auto; height: 100%; box-shadow: 2px 0 5px rgba(0,0,0,0.05); z-index: 10; }
+#main-content { flex-grow: 1; padding: 20px; display: flex; flex-direction: column; }
+
+/* Vis-network Container */
+#mynetwork { flex-grow: 1; width: 100%; height: 100%; border: 1px solid #ccc; background: #ffffff; border-radius: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.05); }
+
+/* Forms & Controls */
+h2, h3 { margin-top: 0; color: #2c3e50; }
+.control-group { margin-bottom: 25px; padding-bottom: 20px; border-bottom: 1px solid #eee; }
+label { display: block; margin: 8px 0 4px; font-size: 0.9em; font-weight: bold; color: #555; }
+input[type="text"], select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+input[type="checkbox"] { display: inline-block; width: auto; margin-right: 8px; }
+button { background: #0056b3; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.9em; }
+button:hover { background: #004494; }
+
+/* Staff List Table */
+.staff-item { display: flex; justify-content: space-between; align-items: center; padding: 6px; border-bottom: 1px solid #eee; font-size: 0.85em; }
+.staff-item button { padding: 4px 8px; font-size: 0.8em; margin-left: 5px; }
+.btn-edit { background: #28a745; }
+.btn-delete { background: #dc3545; }
+
+/* Print Settings */
+@media print {
+    #sidebar { display: none; }
+    #main-content { padding: 0; display: block; }
+    #mynetwork { border: none; box-shadow: none; }
+    body { background: white; }
+}

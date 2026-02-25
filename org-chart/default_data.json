@@ -1,0 +1,260 @@
+[
+  {
+    "id": "1",
+    "parentIds": [
+      "1772042344614",
+      "1772042460980"
+    ],
+    "name": "CAPT Tanaka",
+    "title": "Commanding Officer",
+    "unit": "NCPR",
+    "role": "Military"
+  },
+  {
+    "id": "1772041280423",
+    "name": "Maj. Kerstetter",
+    "title": "Executive Officer",
+    "unit": "NCPR",
+    "role": "Military",
+    "parentIds": [
+      "1"
+    ]
+  },
+  {
+    "id": "1772041389586",
+    "name": "LT Davis",
+    "title": "Operations Officer",
+    "unit": "Duke",
+    "role": "Military",
+    "parentIds": [
+      "1772041280423"
+    ]
+  },
+  {
+    "id": "1772041411430",
+    "name": "LT Bowman",
+    "title": "Director of Undergraduate Studies",
+    "unit": "Duke",
+    "role": "Military",
+    "parentIds": [
+      "1772041280423"
+    ]
+  },
+  {
+    "id": "1772041449946",
+    "name": "Mrs. Back",
+    "title": "Staff Assistant",
+    "unit": "Duke",
+    "role": "Military",
+    "parentIds": [
+      "1772041411430"
+    ]
+  },
+  {
+    "id": "1772041493179",
+    "name": "Mrs. Grazioso",
+    "title": "Human Recourses Assistant",
+    "unit": "Duke",
+    "role": "Military",
+    "parentIds": [
+      "1772041389586"
+    ]
+  },
+  {
+    "id": "1772041512001",
+    "parentIds": [
+      "1772041389586",
+      "1772041657511"
+    ],
+    "name": "Mr. Marchand",
+    "title": "Supply Technician",
+    "unit": "Duke",
+    "role": "Military"
+  },
+  {
+    "id": "1772041528881",
+    "name": "Mr. Thompson",
+    "title": "Admin Officer",
+    "unit": "Duke",
+    "role": "Military",
+    "parentIds": [
+      "1772041389586"
+    ]
+  },
+  {
+    "id": "1772041560592",
+    "name": "GySgt Perry",
+    "title": "AMOI",
+    "unit": "NCPR",
+    "role": "Military",
+    "parentIds": [
+      "1772041577593"
+    ]
+  },
+  {
+    "id": "1772041577593",
+    "name": "Capt. Marshall-Sowa",
+    "title": "MOI",
+    "unit": "NCPR",
+    "role": "Military",
+    "parentIds": [
+      "1772041280423"
+    ]
+  },
+  {
+    "id": "1772041657511",
+    "name": "LT Cuaycong",
+    "title": "Operations Officer",
+    "unit": "UNC",
+    "role": "Military",
+    "parentIds": [
+      "1772041280423"
+    ]
+  },
+  {
+    "id": "1772041678015",
+    "name": "LT Tyra",
+    "title": "Director of Undergraduate Studies",
+    "unit": "UNC",
+    "role": "Military",
+    "parentIds": [
+      "1772041280423"
+    ]
+  },
+  {
+    "id": "1772041702087",
+    "name": "Mrs. Robinson",
+    "title": "Human Recourses Assistant",
+    "unit": "UNC",
+    "role": "Military",
+    "parentIds": [
+      "1772041657511"
+    ]
+  },
+  {
+    "id": "1772041766410",
+    "name": "Ms. ???",
+    "title": "Staff Assistant",
+    "unit": "UNC",
+    "role": "Military",
+    "parentIds": [
+      "1772041678015"
+    ]
+  },
+  {
+    "id": "1772042321878",
+    "parentIds": [],
+    "name": "RDML Pottenburgh",
+    "title": "Naval Service Training Command",
+    "unit": "NCPR",
+    "role": "Military"
+  },
+  {
+    "id": "1772042344614",
+    "parentIds": [
+      "1772042321878"
+    ],
+    "name": "CAPT Adams",
+    "title": "Director of Officer Development",
+    "unit": "NCPR",
+    "role": "Military"
+  },
+  {
+    "id": "1772042393190",
+    "parentIds": [],
+    "name": "Dr. Vincent Price",
+    "title": "Duke President",
+    "unit": "Duke",
+    "role": "Admin"
+  },
+  {
+    "id": "1772042418053",
+    "parentIds": [
+      "1772042393190"
+    ],
+    "name": "Dr. Jennifer Francis",
+    "title": "Provost",
+    "unit": "Duke",
+    "role": "Admin"
+  },
+  {
+    "id": "1772042440076",
+    "parentIds": [
+      "1772042418053"
+    ],
+    "name": "Dr. Gary Bennett",
+    "title": "Dean of Trinity College",
+    "unit": "Duke",
+    "role": "Admin"
+  },
+  {
+    "id": "1772042460980",
+    "parentIds": [
+      "1772042440076"
+    ],
+    "name": "Dr. Amy Herring",
+    "title": "Dean of Natural Sciences",
+    "unit": "Duke",
+    "role": "Admin"
+  },
+  {
+    "id": "1772047082274",
+    "parentIds": [
+      "1772041280423"
+    ],
+    "name": "LT Karabin",
+    "title": "Operations Officer",
+    "unit": "NCSU",
+    "role": "Military"
+  },
+  {
+    "id": "1772047208189",
+    "parentIds": [
+      "1772047082274"
+    ],
+    "name": "Mr. Lee",
+    "title": "Human Resources Assistant",
+    "unit": "NCSU",
+    "role": "Military"
+  },
+  {
+    "id": "1772047386024",
+    "parentIds": [
+      "1772041280423"
+    ],
+    "name": "LT Taylor",
+    "title": "Recruiting/Training Officer",
+    "unit": "NCSU",
+    "role": "Military"
+  },
+  {
+    "id": "1772047421613",
+    "parentIds": [
+      "1772041280423"
+    ],
+    "name": "LT Tilley",
+    "title": "Director of Undergraduate Studies",
+    "unit": "NCSU",
+    "role": "Military"
+  },
+  {
+    "id": "1772047440693",
+    "parentIds": [
+      "1772047421613"
+    ],
+    "name": "Mr. Jared",
+    "title": "Staff Assistant",
+    "unit": "NCSU",
+    "role": "Military"
+  },
+  {
+    "id": "1772047487060",
+    "parentIds": [
+      "1772047082274"
+    ],
+    "name": "Mr. Joe",
+    "title": "Supply Technician",
+    "unit": "NCSU",
+    "role": "Military"
+  }
+]

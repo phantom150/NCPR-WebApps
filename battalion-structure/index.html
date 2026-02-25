@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NAVY ORG COMMAND v3.0</title>
+    <style>
+        :root {
+            /* Navy / Dark Theme Palette */
+            --bg-color: #FFFFFF;        
+            --panel-bg: #112240;        
+            --panel-header: #1d3557;    
+            --line-color: #475569;      
+            --node-bg: #112240;         
+            
+            --primary: #f59e0b;         /* Gold (Student Command) */
+            --secondary: #3b82f6;       /* Blue (UI) */
+            --collateral: #06b6d4;      /* Cyan (Collateral Duties) */
+            --staff: #d946ef;           /* Magenta (Staff Oversight) */
+            
+            --danger: #ef4444;          
+            --success: #10b981;         
+            
+            --text: #e2e8f0;            
+            --text-muted: #94a3b8;      
+            --border: #233554;          
+            
+            --grid-color: rgba(255, 255, 255, 0.05);
+        }
+
+        body {
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            margin: 0; padding: 0; 
+            background-color: var(--bg-color);
+            color: var(--text);
+            overflow: hidden; height: 100vh; display: flex; flex-direction: column;
+            user-select: none;
+        }
+
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-color); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--line-color); }
+
+        /* --- Toolbar --- */
+        #toolbar {
+            background: var(--panel-bg); padding: 12px 20px; flex-shrink: 0;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3); z-index: 1000;
+            display: flex; gap: 10px; align-items: center; 
+            border-bottom: 1px solid var(--primary);
+        }
+
+        h1 { 
+            margin: 0; font-size: 1.1rem; margin-right: auto; 
+            color: var(--primary); font-weight: 800; letter-spacing: 1px; text-transform: uppercase;
+            display: flex; align-items: center; gap: 10px;
+        }
+        h1::before { content: '⚓'; font-size: 1.2rem; }
+
+        button {
+            padding: 8px 14px; cursor: pointer; 
+            border: 1px solid var(--border);
+            background: #1e293b; border-radius: 2px; font-weight: 600;
+            color: var(--text); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;
+            transition: all 0.2s; display: flex; align-items: center; gap: 6px;
+        }
+        button:hover { background: #334155; border-color: var(--text-muted); }
+        
+        button.active { background: var(--secondary); color: white; border-color: var(--secondary); box-shadow: 0 0 10px rgba(59, 130, 246, 0.4); }
+        button.active-collateral { background: var(--collateral); color: #000; border-color: var(--collateral); box-shadow: 0 0 10px rgba(6, 182, 212, 0.4); }
+        button.active-staff { background: var(--staff); color: #fff; border-color: var(--staff); box-shadow: 0 0 10px rgba(217, 70, 239, 0.4); }
+        
+        button.primary { background: var(--primary); color: #0f172a; border: none; font-weight: 700; }
+        button.primary:hover { background: #fbbf24; box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+        button.danger { color: var(--danger); border-color: var(--danger); }
+
+        /* --- Main Layout --- */
+        #main-area { display: flex; flex-grow: 1; overflow: hidden; position: relative; }
+
+        /* --- Sidebars --- */
+        .sidebar {
+            width: 320px; background: var(--panel-bg); 
+            display: flex; flex-direction: column; z-index: 500;
+            transition: margin 0.3s ease; flex-shrink: 0;
+            border-right: 1px solid var(--border);
+            box-shadow: 5px 0 15px rgba(0,0,0,0.3);
+        }
+        .sidebar-right { border-right: none; border-left: 1px solid var(--border); box-shadow: -5px 0 15px rgba(0,0,0,0.3); }
+        .sidebar.hidden { margin-left: -320px; }
+        .sidebar-right.hidden { margin-right: -320px; }
+
+        .sidebar-header {
+            padding: 0; background: var(--panel-header);
+            border-bottom: 2px solid var(--border);
+        }
+        
+        /* Sidebar Tabs */
+        .tab-group { display: flex; width: 100%; }
+        .tab-btn { 
+            flex: 1; border: none; background: transparent; color: var(--text-muted); 
+            padding: 15px 5px; border-bottom: 3px solid transparent; border-radius: 0;
+            justify-content: center; font-size: 0.7rem;
+        }
+        .tab-btn:hover { background: rgba(255,255,255,0.05); }
+        .tab-btn.active-tab { color: #fff; border-bottom-color: var(--primary); background: rgba(255,255,255,0.05); }
+
+        .sidebar-content { flex-grow: 1; overflow-y: auto; padding: 15px; }
+        .sidebar-footer { padding: 10px; border-top: 1px solid var(--border); text-align: center; }
+
+        /* --- Canvas --- */
+        #chart-wrapper {
+            flex-grow: 1; position: relative; overflow: hidden; cursor: grab;
+            background-color: var(--bg-color);
+            background-image: 
+                linear-gradient(var(--grid-color) 1px, transparent 1px),
+                linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+            background-size: 40px 40px;
+        }
+        #chart-wrapper:active { cursor: grabbing; }
+        #pan-layer {
+            position: absolute; top: 50%; left: 50%;
+            transform-origin: 0 0; transition: transform 0.1s ease-out;
+        }
+
+        /* --- Tree Lines --- */
+        .tree ul { padding-top: 30px; position: relative; display: flex; justify-content: center; margin: 0; }
+        .tree li { float: left; text-align: center; list-style-type: none; position: relative; padding: 30px 10px 0 10px; }
+        .tree li::before, .tree li::after {
+            content: ''; position: absolute; top: 0; right: 50%;
+            border-top: 1px solid var(--line-color); width: 50%; height: 30px;
+        }
+        .tree li::after { right: auto; left: 50%; border-left: 1px solid var(--line-color); }
+        .tree li:only-child::after, .tree li:only-child::before { display: none; }
+        .tree li:only-child { padding-top: 0;}
+        .tree li:first-child::before, .tree li:last-child::after { border: 0 none; }
+        .tree li:last-child::before{ border-right: 1px solid var(--line-color); border-radius: 0; }
+        .tree li:first-child::after{ border-radius: 0; }
+        .tree ul ul::before{
+            content: ''; position: absolute; top: 0; left: 50%;
+            border-left: 1px solid var(--line-color); width: 0; height: 30px;
+        }
+
+        /* --- Node Container --- */
+        .node-container {
+            display: inline-flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+
+        /* --- Staff Oversight Card (Top) --- */
+        .staff-card {
+            background: #4a044e; /* Dark Magenta */
+            border: 1px solid var(--staff);
+            color: #fff;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: grab;
+            min-width: 100px;
+            margin-bottom: 2px;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            transition: all 0.2s;
+        }
+        .staff-card::before {
+            content: 'STAFF'; position: absolute; top: -5px; left: 50%; transform: translateX(-50%); 
+            background: var(--staff); color: #000; font-size: 7px; padding: 0 3px; border-radius: 2px;
+        }
+        .staff-card:hover { transform: scale(1.05); z-index: 10; background: var(--staff); color: black; }
+
+        /* --- Position Card (Middle) --- */
+        .card-base {
+            background: var(--node-bg); border: 1px solid var(--border);
+            padding: 12px; color: var(--text); border-radius: 2px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3); transition: all 0.2s; position: relative;
+        }
+        .position-card {
+            min-width: 160px; min-height: 90px; justify-content: center; cursor: pointer;
+            border-top: 3px solid var(--text-muted); display: flex; flex-direction: column; align-items: center;
+        }
+        .position-card.vacant { border: 1px dashed var(--text-muted); background: rgba(17, 34, 64, 0.5); opacity: 0.9; }
+        .position-card.filled { border-top: 3px solid var(--primary); }
+        .position-card:hover {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); border-color: var(--primary);
+        }
+        .position-title { font-size: 10px; text-transform: uppercase; color: var(--primary); font-weight: 700; margin-bottom: 6px; letter-spacing: 1px; }
+        .position-occupant { font-size: 14px; font-weight: 600; color: #fff; text-shadow: 0 1px 2px black; }
+        .vacant-text { color: var(--danger); font-family: monospace; font-size: 12px; letter-spacing: 1px; }
+
+        /* --- Collateral Duty Card (Bottom) --- */
+        .collateral-card {
+            background: #083344; /* Dark Cyan */
+            border: 1px solid var(--collateral);
+            color: var(--collateral);
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            cursor: grab;
+            min-width: 120px;
+            margin-top: 2px;
+            position: relative;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        .collateral-card:hover { background: #0e7490; color: white; transform: scale(1.05); z-index: 10; }
+        
+        /* --- Pool Items --- */
+        .pool-item {
+            display: flex; align-items: center; gap: 10px; cursor: grab; margin-bottom: 8px;
+            background: var(--bg-color); border-left: 3px solid var(--text-muted);
+            padding: 10px; border-radius: 2px; border: 1px solid var(--border);
+        }
+        .pool-item:hover { transform: translateX(4px); background: #152540; }
+        
+        .pool-emp { border-left-color: var(--text-muted); }
+        .pool-emp:hover { border-left-color: var(--primary); }
+        
+        .pool-collat { border-left-color: var(--collateral); }
+        .pool-collat:hover { border-left-color: #fff; }
+
+        .pool-staff { border-left-color: var(--staff); }
+        .pool-staff:hover { border-left-color: #fff; }
+
+        /* Drag & Drop Visuals */
+        .dragging { opacity: 0.4; }
+        .drag-over {
+            background-color: rgba(59, 130, 246, 0.2) !important; 
+            border-color: var(--secondary) !important; border-style: solid !important;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); transform: scale(1.05);
+        }
+        .drop-success { animation: success-pulse 0.8s ease-out; z-index: 20; }
+        @keyframes success-pulse {
+            0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); border-color: var(--success); }
+            100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+        }
+        .splash-particle { position: fixed; width: 6px; height: 6px; border-radius: 50%; pointer-events: none; z-index: 9999; }
+
+        /* Mini Actions */
+        .node-actions {
+            display: flex; gap: 5px; margin-top: 8px; justify-content: center; opacity: 0; transition: opacity 0.2s;
+        }
+        .position-card:hover .node-actions { opacity: 1; }
+        .mini-btn {
+            font-size: 9px; padding: 2px 6px; border-radius: 2px; border: 1px solid var(--border); 
+            background: var(--bg-color); cursor: pointer; color: var(--text-muted);
+        }
+        .mini-btn:hover { background: var(--primary); color: #000; border-color: var(--primary); }
+
+        /* --- Analytics & Modals --- */
+        .stat-card {
+            background: var(--bg-color); border: 1px solid var(--border); border-radius: 2px;
+            padding: 15px; margin-bottom: 12px; text-align: center;
+        }
+        .stat-val { font-size: 1.8rem; font-weight: 700; color: var(--primary); display: block; line-height: 1.2; font-family: monospace;}
+        .stat-label { font-size: 0.7rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .chart-row { display: flex; align-items: center; margin-bottom: 10px; font-size: 0.85rem; }
+        .chart-label { width: 50px; color: var(--text); font-weight: 600; text-align: right; margin-right: 10px; font-family: monospace;}
+        .chart-bar-bg { flex-grow: 1; background: var(--bg-color); border: 1px solid var(--border); height: 12px; border-radius: 2px; overflow: hidden; }
+        .chart-bar-fill { background: var(--primary); height: 100%; width: 0; transition: width 0.5s; }
+        .chart-count { width: 25px; text-align: right; margin-left: 5px; font-size: 0.8rem; color: var(--text-muted); }
+
+        .modal-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(4px);
+            z-index: 2000; justify-content: center; align-items: center;
+        }
+        .modal {
+            background: var(--panel-bg); width: 600px; max-width: 95%; max-height: 90vh;
+            border: 1px solid var(--border); border-radius: 2px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.5);
+            display: flex; flex-direction: column; overflow: hidden;
+            color: var(--text);
+        }
+        .modal-header { padding: 15px 20px; background: var(--panel-header); border-bottom: 1px solid var(--border); }
+        .modal-body { padding: 0; overflow-y: auto; display: flex; flex-direction: column; background: var(--panel-bg); }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid var(--border); background: var(--panel-bg); display: flex; justify-content: flex-end; gap: 8px; }
+        
+        .modal-section { padding: 20px; border-bottom: 1px solid var(--border); }
+        .modal-section:last-child { border-bottom: none; }
+        .modal-section-title { 
+            font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; 
+            color: var(--primary); font-weight: 700; margin-bottom: 15px; border-left: 3px solid var(--primary); padding-left: 10px;
+        }
+        
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .form-group input, .form-group textarea { 
+            width: 100%; padding: 10px; 
+            background: var(--bg-color); border: 1px solid var(--border); color: #fff;
+            border-radius: 2px; box-sizing: border-box; 
+            font-family: 'Segoe UI', monospace; font-size: 0.9rem;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+        input[type=range] { -webkit-appearance: none; background: transparent; }
+        input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; height: 12px; width: 12px; border-radius: 50%; background: var(--primary); cursor: pointer; margin-top: -4px; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 4px; cursor: pointer; background: var(--border); border-radius: 2px; }
+
+    </style>
+</head>
+<body>
+
+<div id="toolbar">
+    <h1>NAVY ORG COMMAND</h1>
+    <button id="toggle-analytics" onclick="app.togglePanel('analytics')">📊 Analytics</button>
+    <button id="toggle-pool" class="active" onclick="app.togglePanel('pool')">👥 Roster</button>
+    
+    <div style="width: 1px; height: 20px; background: var(--border); margin: 0 5px;"></div>
+    
+    <button id="toggle-collateral" onclick="app.toggleCollateral()">
+        <span style="color:var(--collateral)">♦</span> Duties
+    </button>
+    <button id="toggle-staff" onclick="app.toggleStaff()">
+        <span style="color:var(--staff)">★</span> Staff
+    </button>
+    
+    <div style="flex-grow:1"></div>
+    <button onclick="app.resetData()">Reset</button>
+    <button onclick="app.exportJSON()">Export</button>
+    <button onclick="document.getElementById('importFile').click()">Import</button>
+    <input type="file" id="importFile" style="display:none" accept=".json" onchange="app.importJSON(this)">
+    
+    <div style="width: 20px;"></div>
+    <label for="zoomRange" style="font-size: 0.7rem; text-transform:uppercase; letter-spacing:1px; color: var(--text-muted);">Zoom</label>
+    <input type="range" id="zoomRange" min="0.2" max="2" step="0.1" value="1">
+</div>
+
+<div id="main-area">
+    <!-- LEFT: Analytics -->
+    <div id="analytics-panel" class="sidebar hidden">
+        <div class="sidebar-header"><div class="tab-btn" style="color:#fff">COMMAND ANALYTICS</div></div>
+        <div class="sidebar-content">
+            <div class="stat-card"><span class="stat-val" id="stat-fill-rate">0%</span><span class="stat-label">Readiness</span></div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div class="stat-card"><span class="stat-val" id="stat-span">0</span><span class="stat-label">Avg Span</span></div>
+                <div class="stat-card"><span class="stat-val" id="stat-depth">0</span><span class="stat-label">Echelons</span></div>
+            </div>
+            <h4 style="font-size:0.7rem; text-transform:uppercase; color:var(--text-muted); margin-top:20px; border-bottom:1px solid var(--border); padding-bottom:5px;">Rank Distribution</h4>
+            <div id="rank-chart" style="margin-top:10px;"></div>
+        </div>
+    </div>
+
+    <!-- CENTER: Canvas -->
+    <div id="chart-wrapper">
+        <div id="pan-layer" class="tree"></div>
+    </div>
+
+    <!-- RIGHT: Pool -->
+    <div id="pool-panel" class="sidebar sidebar-right">
+        <div class="sidebar-header">
+            <div class="tab-group">
+                <button class="tab-btn active-tab" id="tab-roster" onclick="app.switchPoolView('roster')">STUDENTS</button>
+                <button class="tab-btn" id="tab-duties" onclick="app.switchPoolView('duties')">DUTIES</button>
+                <button class="tab-btn" id="tab-staff" onclick="app.switchPoolView('staff')">STAFF</button>
+            </div>
+        </div>
+        <div id="pool-list" class="sidebar-content"></div>
+        <div class="sidebar-footer">
+            <button class="primary" style="width:100%; justify-content:center;" onclick="app.createPoolItem()">+ NEW ENTRY</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div id="main-modal" class="modal-overlay">
+    <div class="modal">
+        <div class="modal-header"><h3 id="modal-heading" style="margin:0">Details</h3></div>
+        <div class="modal-body">
+            
+            <!-- SECTION: POSITION -->
+            <div id="section-position" class="modal-section" style="display:none;">
+                <div class="modal-section-title">🏢 Billet / Position</div>
+                <div class="form-group"><label>Billet Title</label><input type="text" id="pos-title"></div>
+                <div class="form-group"><label>Duties</label><textarea id="pos-duties" rows="2"></textarea></div>
+                
+                <!-- Staff Assignment Display -->
+                <div id="pos-staff-info" style="margin-bottom:15px; padding:10px; background:rgba(217, 70, 239, 0.1); border:1px solid var(--staff); display:none;">
+                    <label style="color:var(--staff); font-size:0.7rem; font-weight:bold;">STAFF ADVISOR:</label>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span id="pos-staff-name" style="color:white; font-weight:bold;"></span>
+                        <button onclick="app.unassignStaff()" style="font-size:0.6rem; padding:2px 5px; border-color:var(--staff); color:var(--staff); background:transparent;">UNASSIGN</button>
+                    </div>
+                </div>
+
+                <div style="margin-top:10px; display:flex; gap:10px;">
+                     <button onclick="app.addPosFromModal()" style="font-size:0.7rem">Add Subordinate</button>
+                     <button id="btn-del-pos" class="danger" style="font-size:0.7rem" onclick="app.delPosFromModal()">Delete Billet</button>
+                </div>
+            </div>
+
+            <!-- SECTION: EMPLOYEE -->
+            <div id="section-employee" class="modal-section" style="display:none;">
+                <div class="modal-section-title">👤 Student Data</div>
+                <div class="form-group"><label>Name</label><input type="text" id="emp-name"></div>
+                <div class="form-group"><label>Rank</label><input type="text" id="emp-rank"></div>
+                <div class="form-group"><label>Bio</label><textarea id="emp-bio" rows="2"></textarea></div>
+                <div style="margin-top:10px; display:flex; gap:10px; justify-content:space-between;">
+                    <button id="btn-unassign" class="danger" style="font-size:0.7rem" onclick="app.unassignFromModal()">Relieve</button>
+                    <button class="danger" style="font-size:0.7rem" onclick="app.deleteItemFromModal('employee')">Discharge</button>
+                </div>
+            </div>
+
+            <!-- SECTION: COLLATERAL -->
+            <div id="section-collateral" class="modal-section" style="display:none;">
+                <div class="modal-section-title" style="border-color:var(--collateral); color:var(--collateral);">♦ Collateral Duty</div>
+                <div class="form-group"><label>Duty Title</label><input type="text" id="col-title"></div>
+                <div class="form-group"><label>Description</label><textarea id="col-desc" rows="3"></textarea></div>
+                <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                    <button class="danger" style="font-size:0.7rem" onclick="app.deleteItemFromModal('collateral')">Delete Duty</button>
+                </div>
+            </div>
+
+             <!-- SECTION: STAFF MEMBER -->
+             <div id="section-staff" class="modal-section" style="display:none;">
+                <div class="modal-section-title" style="border-color:var(--staff); color:var(--staff);">★ Staff Advisor</div>
+                <div class="form-group"><label>Name</label><input type="text" id="stf-name"></div>
+                <div class="form-group"><label>Rank</label><input type="text" id="stf-rank"></div>
+                <div style="margin-top:10px; display:flex; justify-content:flex-end;">
+                    <button class="danger" style="font-size:0.7rem" onclick="app.deleteItemFromModal('staff')">Delete Staff</button>
+                </div>
+            </div>
+
+        </div>
+        <div class="modal-footer">
+            <button onclick="app.closeModal()">Close</button>
+            <button class="primary" onclick="app.saveModal()">Update Records</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    class OrgApp {
+        constructor() {
+            this.positions = []; 
+            this.employees = [];
+            this.collateral = [];
+            this.staff = [];
+            
+            this.scale = 1; this.panning = false; this.pointX = 0; this.pointY = 0; this.startX = 0; this.startY = 0;
+            this.draggedId = null; this.dragType = null;
+            
+            // View State
+            this.poolView = 'roster'; // 'roster', 'duties', 'staff'
+            this.showCollateral = true; 
+            this.showStaff = true;
+
+            this.activeModalMode = null; 
+            this.activeId = null; 
+
+            this.panLayer = document.getElementById('pan-layer');
+            this.chartWrapper = document.getElementById('chart-wrapper');
+            
+            this.init();
+        }
+
+        init() {
+            const saved = localStorage.getItem('orgDataV6');
+            if(saved) {
+                const p = JSON.parse(saved);
+                this.positions = p.positions; this.employees = p.employees; 
+                this.collateral = p.collateral || []; this.staff = p.staff || [];
+            } else {
+                this.loadDefaults();
+            }
+            this.updateToggles();
+            this.setupControls();
+            this.render();
+            this.centerChart();
+        }
+
+        loadDefaults() {
+            this.positions = [
+                { id: 'p1', parentId: null, title: 'BATTALION CO', duties: '', employeeId: 'e1', staffId: 's1' },
+                { id: 'p2', parentId: 'p1', title: 'BATTALION XO', duties: '', employeeId: 'e2', staffId: 's1' },
+                { id: 'p3', parentId: 'p1', title: 'OPS OFFICER', duties: '', employeeId: null, staffId: 's2' },
+            ];
+            this.employees = [
+                { id: 'e1', name: 'MIDN 1/C SMITH', rank: '1/C', bio: '' },
+                { id: 'e2', name: 'MIDN 1/C JONES', rank: '1/C', bio: '' },
+            ];
+            this.collateral = [
+                { id: 'c1', title: 'SAFETY', parentId: 'p1', desc: 'Unit Safety' },
+            ];
+            this.staff = [
+                { id: 's1', name: 'LT MAVERICK', rank: 'O-3' },
+                { id: 's2', name: 'GYSGT HIGHWAY', rank: 'E-7' }
+            ];
+            this.save();
+        }
+
+        save() {
+            localStorage.setItem('orgDataV6', JSON.stringify({ 
+                positions: this.positions, 
+                employees: this.employees, 
+                collateral: this.collateral,
+                staff: this.staff
+            }));
+        }
+
+        // --- Controls & Toggles ---
+
+        togglePanel(panel) {
+            if(panel === 'analytics') {
+                document.getElementById('analytics-panel').classList.toggle('hidden');
+                document.getElementById('toggle-analytics').classList.toggle('active');
+                if(!document.getElementById('analytics-panel').classList.contains('hidden')) this.updateAnalytics();
+            } else {
+                document.getElementById('pool-panel').classList.toggle('hidden');
+                document.getElementById('toggle-pool').classList.toggle('active');
+            }
+        }
+
+        toggleCollateral() { this.showCollateral = !this.showCollateral; this.updateToggles(); this.render(); }
+        toggleStaff() { this.showStaff = !this.showStaff; this.updateToggles(); this.render(); }
+
+        updateToggles() {
+            const btnCol = document.getElementById('toggle-collateral');
+            const btnStf = document.getElementById('toggle-staff');
+            if(this.showCollateral) btnCol.classList.add('active-collateral'); else btnCol.classList.remove('active-collateral');
+            if(this.showStaff) btnStf.classList.add('active-staff'); else btnStf.classList.remove('active-staff');
+        }
+
+        switchPoolView(view) {
+            this.poolView = view;
+            document.getElementById('tab-roster').classList.toggle('active-tab', view==='roster');
+            document.getElementById('tab-duties').classList.toggle('active-tab', view==='duties');
+            document.getElementById('tab-staff').classList.toggle('active-tab', view==='staff');
+            this.render();
+        }
+
+        // --- Rendering ---
+
+        render() {
+            // Chart
+            const root = this.positions.find(p => p.parentId === null);
+            this.panLayer.innerHTML = root ? `<ul>${this.buildTree(root.id)}</ul>` : '<div style="padding:20px; text-align:center;"><button onclick="app.resetData()">INITIALIZE DATA</button></div>';
+
+            // Pool Sidebar
+            const list = document.getElementById('pool-list');
+            list.innerHTML = '';
+
+            if (this.poolView === 'roster') {
+                const assignedIds = this.positions.map(p => p.employeeId).filter(id => id);
+                const pool = this.employees.filter(e => !assignedIds.includes(e.id));
+                list.innerHTML = pool.map(e => `
+                    <div class="pool-item pool-emp" draggable="true" ondragstart="app.dragStart(event, '${e.id}', 'employee')" onclick="app.openModal('employee', '${e.id}')">
+                        <div style="flex-grow:1"><div style="font-weight:700; font-size:0.85rem;">${e.name}</div><div style="font-size:0.7rem; color:var(--text-muted); font-family:monospace;">${e.rank || 'N/A'}</div></div>
+                        <div style="color:var(--text-muted);">⋮</div>
+                    </div>
+                `).join('') || '<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">No Students</div>';
+            } else if (this.poolView === 'duties') {
+                const pool = this.collateral.filter(c => c.parentId === null);
+                list.innerHTML = pool.map(c => `
+                    <div class="pool-item pool-collat" draggable="true" ondragstart="app.dragStart(event, '${c.id}', 'collateral')" onclick="app.openModal('collateral', '${c.id}')">
+                        <div style="flex-grow:1"><div style="font-weight:700; color:var(--collateral); font-size:0.85rem;">${c.title}</div><div style="font-size:0.7rem; color:var(--text-muted);">Unassigned</div></div>
+                        <div style="color:var(--text-muted);">⋮</div>
+                    </div>
+                `).join('') || '<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">No Unassigned Duties</div>';
+            } else if (this.poolView === 'staff') {
+                // Show all staff. Staff can oversee multiple students, so we don't filter them out if assigned.
+                list.innerHTML = this.staff.map(s => `
+                    <div class="pool-item pool-staff" draggable="true" ondragstart="app.dragStart(event, '${s.id}', 'staff')" onclick="app.openModal('staff', '${s.id}')">
+                        <div style="flex-grow:1"><div style="font-weight:700; color:var(--staff); font-size:0.85rem;">${s.name}</div><div style="font-size:0.7rem; color:var(--text-muted);">${s.rank}</div></div>
+                        <div style="color:var(--text-muted);">⋮</div>
+                    </div>
+                `).join('') || '<div style="text-align:center; color:var(--text-muted); font-size:0.8rem;">No Active Duty</div>';
+            }
+
+            if(!document.getElementById('analytics-panel').classList.contains('hidden')) this.updateAnalytics();
+        }
+
+        buildTree(posId) {
+            const pos = this.positions.find(p => p.id === posId);
+            const children = this.positions.filter(p => p.parentId === posId);
+            const occupant = pos.employeeId ? this.employees.find(e => e.id === pos.employeeId) : null;
+            const isRoot = pos.parentId === null;
+
+            // Render Staff Layer (Above)
+            let staffHtml = '';
+            if (this.showStaff && pos.staffId) {
+                const s = this.staff.find(x => x.id === pos.staffId);
+                if(s) {
+                    staffHtml = `
+                        <div class="staff-card" draggable="true" ondragstart="app.dragStart(event, '${s.id}', 'staff')" onclick="event.stopPropagation(); app.openModal('staff', '${s.id}')">
+                            ${s.rank} ${s.name}
+                        </div>
+                    `;
+                }
+            }
+
+            // Render Collateral Layer (Below)
+            let collateralHtml = '';
+            if (this.showCollateral) {
+                const duties = this.collateral.filter(c => c.parentId === pos.id);
+                if (duties.length > 0) {
+                    collateralHtml = duties.map(d => `
+                        <div class="collateral-card" draggable="true" ondragstart="app.dragStart(event, '${d.id}', 'collateral')" onclick="event.stopPropagation(); app.openModal('collateral', '${d.id}')">
+                            ${d.title}
+                        </div>
+                    `).join('');
+                }
+            }
+
+            const statusClass = occupant ? 'filled' : 'vacant';
+            const dragAttr = isRoot ? '' : `draggable="true" ondragstart="app.dragStart(event, '${pos.id}', 'position')"`;
+
+            let html = `
+                <li>
+                    <div class="node-container">
+                        ${staffHtml}
+                        <div class="card-base position-card ${statusClass}" id="pos-${pos.id}"
+                             ${dragAttr}
+                             ondragover="app.dragOver(event)" ondragleave="app.dragLeave(event)"
+                             ondrop="app.drop(event, '${pos.id}')"
+                             onclick="app.openModal('position', '${pos.id}')">
+                            
+                            <div class="position-title">${pos.title}</div>
+                            ${occupant 
+                                ? `<div class="position-occupant">${occupant.name}</div>
+                                   <div style="font-size:10px; color:var(--primary); font-family:monospace; margin-top:2px;">${occupant.rank || ''}</div>`
+                                : `<div class="vacant-text">VACANT</div>`
+                            }
+                            
+                            <div class="node-actions">
+                                <button class="mini-btn" onclick="event.stopPropagation(); app.addPos('${pos.id}')">ADD</button>
+                            </div>
+                        </div>
+                        ${collateralHtml}
+                    </div>
+            `;
+            if (children.length) html += `<ul>${children.map(c => this.buildTree(c.id)).join('')}</ul>`;
+            html += `</li>`;
+            return html;
+        }
+
+        // --- Drag & Drop ---
+
+        dragStart(e, id, type) {
+            this.draggedId = id; this.dragType = type;
+            e.dataTransfer.effectAllowed = 'move';
+            e.stopPropagation();
+            setTimeout(() => e.target.classList.add('dragging'), 0);
+        }
+        dragOver(e) { 
+            e.preventDefault(); 
+            e.target.closest('.position-card')?.classList.add('drag-over'); 
+            if(e.target.closest('#pool-panel')) e.target.closest('#pool-panel').style.background = '#1e293b';
+        }
+        dragLeave(e) { 
+            e.target.closest('.position-card')?.classList.remove('drag-over'); 
+            if(e.target.closest('#pool-panel')) e.target.closest('#pool-panel').style.background = '';
+        }
+        
+        drop(e, targetId) {
+            e.preventDefault();
+            document.querySelectorAll('.dragging, .drag-over').forEach(el => el.classList.remove('dragging', 'drag-over'));
+            document.getElementById('pool-panel').style.background = '';
+
+            // Handle drop on Pool (Unassign)
+            if (e.target.closest('#pool-panel')) {
+                this.handleUnassignDrop();
+                return;
+            }
+
+            if(!this.draggedId || !targetId) return;
+
+            // 1. Assign Student (Employee)
+            if(this.dragType === 'employee') {
+                const targetPos = this.positions.find(p => p.id === targetId);
+                const oldPos = this.positions.find(p => p.employeeId === this.draggedId);
+                if(oldPos) oldPos.employeeId = null;
+                targetPos.employeeId = this.draggedId;
+                this.createSplash(e.clientX, e.clientY);
+            } 
+            // 2. Assign Collateral
+            else if(this.dragType === 'collateral') {
+                const col = this.collateral.find(c => c.id === this.draggedId);
+                col.parentId = targetId;
+            }
+            // 3. Assign Staff
+            else if(this.dragType === 'staff') {
+                const targetPos = this.positions.find(p => p.id === targetId);
+                targetPos.staffId = this.draggedId;
+                this.createSplash(e.clientX, e.clientY);
+            }
+            // 4. Move Position
+            else if(this.dragType === 'position') {
+                if(this.draggedId !== targetId && !this.isDescendant(this.draggedId, targetId)) {
+                    this.positions.find(x => x.id === this.draggedId).parentId = targetId;
+                }
+            }
+            this.save(); this.render(); this.draggedId = null;
+        }
+
+        handleUnassignDrop() {
+            if (this.dragType === 'collateral') {
+                const col = this.collateral.find(c => c.id === this.draggedId);
+                col.parentId = null; 
+                this.switchPoolView('duties');
+            } else if (this.dragType === 'employee') {
+                const pos = this.positions.find(p => p.employeeId === this.draggedId);
+                if(pos) pos.employeeId = null;
+                this.switchPoolView('roster');
+            } else if (this.dragType === 'staff') {
+                // Staff aren't really "unassigned" from the pool perspective since they can exist multiple times,
+                // but if we dragged a staff card *from the tree* to the pool, we could clear it from that position.
+                // However, our current logic only grabs the ID. 
+                // Advanced logic: Find the position this specific instance belonged to? 
+                // For now, simpler to just allow unassigning via modal.
+            }
+            this.save(); this.render(); this.draggedId = null;
+        }
+
+        createSplash(x, y) {
+            const colors = ['#f59e0b', '#3b82f6', '#ffffff'];
+            for(let i=0; i<15; i++) {
+                const p = document.createElement('div');
+                p.classList.add('splash-particle'); document.body.appendChild(p);
+                p.style.left = x+'px'; p.style.top = y+'px'; p.style.background = colors[Math.floor(Math.random()*colors.length)];
+                const angle = Math.random() * Math.PI * 2; const dist = 40 + Math.random() * 50;
+                p.animate([{ transform: 'translate(0,0) scale(1)', opacity: 1 }, { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }], { duration: 500 }).onfinish = () => p.remove();
+            }
+        }
+        isDescendant(pid, cid) { if(pid===cid) return true; return this.positions.filter(p=>p.parentId===pid).some(c=>this.isDescendant(c.id,cid)); }
+
+        // --- Modals ---
+
+        openModal(mode, id) {
+            this.activeModalMode = mode;
+            this.activeId = id; 
+            
+            const sPos = document.getElementById('section-position');
+            const sEmp = document.getElementById('section-employee');
+            const sCol = document.getElementById('section-collateral');
+            const sStf = document.getElementById('section-staff');
+            
+            [sPos, sEmp, sCol, sStf].forEach(s => s.style.display='none');
+            ['pos-title','pos-duties','emp-name','emp-rank','emp-bio','col-title','col-desc','stf-name','stf-rank'].forEach(i => document.getElementById(i).value = '');
+            document.getElementById('pos-staff-info').style.display = 'none';
+
+            if(mode === 'position') {
+                sPos.style.display = 'block';
+                const pos = this.positions.find(p => p.id === id);
+                document.getElementById('pos-title').value = pos.title;
+                document.getElementById('pos-duties').value = pos.duties;
+                
+                const isLeaf = !this.positions.some(p => p.parentId === id);
+                const isRoot = pos.parentId === null;
+                document.getElementById('btn-del-pos').style.display = (isLeaf && !isRoot) ? 'block' : 'none';
+
+                if(pos.employeeId) {
+                    sEmp.style.display = 'block';
+                    const emp = this.employees.find(e => e.id === pos.employeeId);
+                    this.activeEmpId = emp.id;
+                    this.populateEmpForm(emp);
+                    document.getElementById('btn-unassign').style.display = 'block';
+                }
+
+                if(pos.staffId) {
+                    const stf = this.staff.find(s => s.id === pos.staffId);
+                    if(stf) {
+                        document.getElementById('pos-staff-info').style.display = 'block';
+                        document.getElementById('pos-staff-name').innerText = `${stf.rank} ${stf.name}`;
+                    }
+                }
+            } 
+            else if (mode === 'employee') {
+                sEmp.style.display = 'block';
+                this.activeEmpId = id;
+                const emp = this.employees.find(e => e.id === id);
+                this.populateEmpForm(emp);
+                document.getElementById('btn-unassign').style.display = 'none';
+            } 
+            else if (mode === 'collateral') {
+                sCol.style.display = 'block';
+                const col = this.collateral.find(c => c.id === id);
+                document.getElementById('col-title').value = col.title;
+                document.getElementById('col-desc').value = col.desc || '';
+            }
+            else if (mode === 'staff') {
+                sStf.style.display = 'block';
+                const stf = this.staff.find(s => s.id === id);
+                document.getElementById('stf-name').value = stf.name;
+                document.getElementById('stf-rank').value = stf.rank;
+            }
+
+            document.getElementById('main-modal').style.display = 'flex';
+        }
+
+        populateEmpForm(emp) {
+            document.getElementById('emp-name').value = emp.name;
+            document.getElementById('emp-rank').value = emp.rank || '';
+            document.getElementById('emp-bio').value = emp.bio || '';
+        }
+
+        saveModal() {
+            if (this.activeModalMode === 'position') {
+                const pos = this.positions.find(p => p.id === this.activeId);
+                pos.title = document.getElementById('pos-title').value;
+                pos.duties = document.getElementById('pos-duties').value;
+                if (this.activeEmpId) {
+                    const emp = this.employees.find(e => e.id === this.activeEmpId);
+                    emp.name = document.getElementById('emp-name').value;
+                    emp.rank = document.getElementById('emp-rank').value;
+                    emp.bio = document.getElementById('emp-bio').value;
+                }
+            } 
+            else if (this.activeModalMode === 'employee') {
+                const emp = this.employees.find(e => e.id === this.activeId);
+                emp.name = document.getElementById('emp-name').value;
+                emp.rank = document.getElementById('emp-rank').value;
+                emp.bio = document.getElementById('emp-bio').value;
+            }
+            else if (this.activeModalMode === 'collateral') {
+                const col = this.collateral.find(c => c.id === this.activeId);
+                col.title = document.getElementById('col-title').value;
+                col.desc = document.getElementById('col-desc').value;
+            }
+            else if (this.activeModalMode === 'staff') {
+                const stf = this.staff.find(s => s.id === this.activeId);
+                stf.name = document.getElementById('stf-name').value;
+                stf.rank = document.getElementById('stf-rank').value;
+            }
+            this.save(); this.render(); this.closeModal();
+        }
+
+        // --- CRUD Utils ---
+        createPoolItem() {
+            if(this.poolView === 'roster') {
+                const n = prompt("STUDENT NAME:");
+                if(n) { this.employees.push({ id: 'e'+Date.now(), name: n, rank:'', bio:'' }); this.save(); this.render(); }
+            } else if (this.poolView === 'duties') {
+                const t = prompt("DUTY TITLE:");
+                if(t) { this.collateral.push({ id: 'c'+Date.now(), title: t, parentId: null, desc:'' }); this.save(); this.render(); }
+            } else {
+                const n = prompt("STAFF NAME:");
+                if(n) { this.staff.push({ id: 's'+Date.now(), name: n, rank: '' }); this.save(); this.render(); }
+            }
+        }
+        
+        addPos(parentId) { const t = prompt("BILLET TITLE:"); if(t) { this.positions.push({ id: Date.now().toString(), parentId, title: t, duties:'', employeeId: null, staffId: null }); this.save(); this.render(); } }
+        addPosFromModal() { if(this.activeModalMode==='position') this.addPos(this.activeId); this.closeModal(); }
+        
+        delPosFromModal() { 
+            if(!confirm("DELETE BILLET?")) return;
+            this.positions = this.positions.filter(p => p.id !== this.activeId);
+            this.collateral.forEach(c => { if(c.parentId === this.activeId) c.parentId = null; });
+            this.save(); this.render(); this.closeModal(); 
+        }
+
+        unassignFromModal() {
+            const pos = this.positions.find(p => p.id === this.activeId);
+            pos.employeeId = null; this.save(); this.render(); this.closeModal();
+        }
+
+        unassignStaff() {
+            const pos = this.positions.find(p => p.id === this.activeId);
+            pos.staffId = null; this.save(); this.render(); this.closeModal();
+        }
+
+        deleteItemFromModal(type) {
+            if(type === 'employee') {
+                if(!confirm("DISCHARGE STUDENT?")) return;
+                const pos = this.positions.find(p => p.employeeId === this.activeId);
+                if(pos) pos.employeeId = null;
+                this.employees = this.employees.filter(e => e.id !== this.activeId);
+            } else if (type === 'collateral') {
+                if(!confirm("DELETE DUTY?")) return;
+                this.collateral = this.collateral.filter(c => c.id !== this.activeId);
+            } else if (type === 'staff') {
+                if(!confirm("DELETE STAFF?")) return;
+                this.positions.forEach(p => { if(p.staffId === this.activeId) p.staffId = null; });
+                this.staff = this.staff.filter(s => s.id !== this.activeId);
+            }
+            this.save(); this.render(); this.closeModal();
+        }
+
+        closeModal() { document.getElementById('main-modal').style.display = 'none'; }
+        
+        updateAnalytics() {
+            const filled = this.positions.filter(p => p.employeeId).length;
+            const rate = this.positions.length ? Math.round((filled/this.positions.length)*100) : 0;
+            const rateEl = document.getElementById('stat-fill-rate'); rateEl.textContent = rate + '%';
+            rateEl.style.color = rate < 70 ? 'var(--danger)' : 'var(--success)';
+            
+            const root = this.positions.find(p => p.parentId === null);
+            document.getElementById('stat-depth').textContent = root ? (function d(id, list){ const k = list.filter(x=>x.parentId===id); return k.length ? 1+Math.max(...k.map(x=>d(x.id, list))) : 1; })(root.id, this.positions) : 0;
+            
+            const parents = {}; this.positions.forEach(p=>{if(p.parentId) parents[p.parentId]=(parents[p.parentId]||0)+1;});
+            const v = Object.values(parents);
+            document.getElementById('stat-span').textContent = v.length ? (v.reduce((a,b)=>a+b,0)/v.length).toFixed(1) : 0;
+
+            const ranks={}; this.employees.forEach(e=>{const r=e.rank||'Unk'; ranks[r]=(ranks[r]||0)+1;});
+            const max=Math.max(...Object.values(ranks))||1;
+            document.getElementById('rank-chart').innerHTML = Object.keys(ranks).map(r=>`<div class="chart-row"><div class="chart-label">${r.substr(0,5)}</div><div class="chart-bar-bg"><div class="chart-bar-fill" style="width:${(ranks[r]/max)*100}%"></div></div><div class="chart-count">${ranks[r]}</div></div>`).join('');
+        }
+        
+        setupControls() {
+            this.chartWrapper.onmousedown = e => { if(!e.target.closest('.card-base') && !e.target.closest('.collateral-card') && !e.target.closest('.staff-card')) { this.panning=true; this.startX=e.clientX-this.pointX; this.startY=e.clientY-this.pointY; this.chartWrapper.style.cursor='grabbing';}};
+            window.onmouseup = () => { this.panning=false; this.chartWrapper.style.cursor='grab'; };
+            window.onmousemove = e => { if(this.panning) { e.preventDefault(); this.pointX=e.clientX-this.startX; this.pointY=e.clientY-this.startY; this.panLayer.style.transform=`translate(${this.pointX}px,${this.pointY}px) scale(${this.scale})`;}};
+            document.getElementById('zoomRange').oninput = e => { this.scale=e.target.value; this.panLayer.style.transform=`translate(${this.pointX}px,${this.pointY}px) scale(${this.scale})`; };
+        }
+        centerChart() { this.pointX=(this.chartWrapper.offsetWidth/2)-(this.panLayer.offsetWidth/2); this.pointY=50; this.panLayer.style.transform=`translate(${this.pointX}px,${this.pointY}px) scale(${this.scale})`; }
+        resetData() { if(confirm("RESET DATABASE?")) { this.loadDefaults(); this.init(); } }
+        exportJSON() { const a = document.createElement('a'); a.href = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify({positions:this.positions, employees:this.employees, collateral:this.collateral, staff:this.staff})); a.download = "navy-org-data.json"; document.body.appendChild(a); a.click(); a.remove(); }
+        importJSON(input) { const f = input.files[0]; if(!f) return; const r = new FileReader(); r.onload = e => { try { const d=JSON.parse(e.target.result); if(d.positions){this.positions=d.positions;this.employees=d.employees;this.collateral=d.collateral||[];this.staff=d.staff||[];this.save();this.render();} }catch(err){alert("FILE ERROR");}}; r.readAsText(f); input.value=''; }
+    }
+
+    const app = new OrgApp();
+</script>
+</body>
+</html>

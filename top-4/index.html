@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NROTC Billet Planner</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #1a202c;
+            --border-color: #cbd5e0;
+            --c26: #718096; /* Grey - Graduated/History */
+            --c27: #3182ce; /* Blue */
+            --c28: #38a169; /* Green */
+            --c29: #d69e2e; /* Orange */
+            --locked-bg: #e2e8f0;
+            --header-bg: #2c5282;
+            --header-text: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 10px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Top Control Bar */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+            background: white;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.2s;
+        }
+
+        .btn-primary { background-color: #2b6cb0; color: white; }
+        .btn-primary:hover { background-color: #2c5282; }
+        .btn-danger { background-color: #c53030; color: white; }
+        .btn-secondary { background-color: #edf2f7; color: #2d3748; }
+        .btn-secondary:hover { background-color: #e2e8f0; }
+
+        /* Main Layout */
+        .main-container {
+            display: flex;
+            gap: 10px;
+            flex: 1;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .grid-area {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            overflow: auto;
+            border-radius: 8px;
+            background: white;
+        }
+
+        .sidebar {
+            flex: 1;
+            background: white;
+            border-radius: 8px;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            max-width: 280px;
+            overflow: hidden;
+        }
+
+        /* The Grid */
+        .schedule-grid {
+            display: grid;
+            /* 1 Label Col + 2 History Cols + 5 Future Cols */
+            grid-template-columns: 80px repeat(2, 1fr) repeat(5, 1fr);
+            gap: 2px;
+            background-color: var(--border-color);
+            border: 1px solid var(--border-color);
+            min-width: 1000px; /* Prevent crushing on small screens */
+        }
+
+        .header-group {
+            grid-column: span 1;
+            background-color: var(--header-bg);
+            color: var(--header-text);
+            text-align: center;
+            padding: 5px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .ac-year-group {
+            grid-column: span 2; /* Spans Fall/Spring */
+            background-color: #1a365d;
+            color: white;
+            text-align: center;
+            font-size: 0.8rem;
+            padding: 2px;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .ac-year-group.single { grid-column: span 1; }
+
+        .col-header {
+            background-color: #ebf8ff;
+            text-align: center;
+            padding: 5px;
+            font-weight: bold;
+            font-size: 0.8rem;
+            position: sticky;
+            top: 24px; /* Height of AC Year row */
+            z-index: 10;
+            box-shadow: 0 2px 2px -1px rgba(0,0,0,0.1);
+        }
+
+        .row-label {
+            background-color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 0.9rem;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .cell {
+            background-color: white;
+            min-height: 50px;
+            position: relative;
+            padding: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .cell.locked {
+            background-color: var(--locked-bg);
+            background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.5) 10px, rgba(255,255,255,0.5) 20px);
+        }
+
+        .cell.mir-row {
+            background-color: #faf5ff; /* Light purple for MIR */
+        }
+
+        /* Draggable Student Chips */
+        .student {
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: white;
+            cursor: grab;
+            user-select: none;
+            text-align: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .student:active { cursor: grabbing; }
+
+        /* Class Colors */
+        .c26 { background-color: var(--c26); }
+        .c27 { background-color: var(--c27); }
+        .c28 { background-color: var(--c28); }
+        .c29 { background-color: var(--c29); }
+
+        /* Scenario List */
+        .scenario-list {
+            list-style: none;
+            padding: 0;
+            overflow-y: auto;
+            flex: 1;
+        }
+        .scenario-item {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            padding: 8px;
+            margin-bottom: 5px;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .scenario-item:hover { background: #edf2f7; }
+
+        /* Modal for Comparison */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .modal-content {
+            background: white;
+            height: 100%;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+        }
+        .compare-container {
+            display: flex;
+            gap: 20px;
+            flex: 1;
+            overflow: auto;
+        }
+        .compare-pane {
+            flex: 1;
+            min-width: 600px;
+        }
+
+        /* Utility */
+        .hidden { display: none; }
+        .error-toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #c53030;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .error-toast.show { opacity: 1; }
+        .error-toast.success { background-color: #38a169; }
+
+        .divider {
+            height: 1px;
+            background-color: #e2e8f0;
+            margin: 10px 0;
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="controls">
+    <div style="flex:1">
+        <h2 style="margin:0; font-size:1.2rem;">NROTC Billet Planner</h2>
+        <small style="color:#718096">2027 (Blue), 2028 (Green), 2029 (Orange)</small>
+    </div>
+    <input type="text" id="scenarioName" placeholder="Scenario Name" style="padding:8px;">
+    <button class="btn-primary" onclick="saveScenario()">Save Scenario</button>
+    <button class="btn-secondary" onclick="resetBoard()">Reset</button>
+</div>
+
+<div class="main-container">
+    <div class="grid-area">
+        <div class="schedule-grid" id="mainGrid">
+            </div>
+    </div>
+
+    <div class="sidebar">
+        <h3 style="margin-top:0;">Saved Scenarios</h3>
+        <ul class="scenario-list" id="savedList"></ul>
+        
+        <div style="display:flex; gap:5px; margin-top:5px;">
+             <button class="btn-primary" onclick="openCompare()" style="flex:1;">Compare</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <h4 style="margin:5px 0 10px 0;">Data Management</h4>
+        <button class="btn-secondary" onclick="exportJSON()" style="width:100%; margin-bottom:5px;">
+            Download JSON Backup
+        </button>
+        
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+        <button class="btn-secondary" onclick="document.getElementById('importFile').click()" style="width:100%;">
+            Restore from JSON
+        </button>
+        
+        <div style="margin-top: auto; padding-top:15px; font-size: 0.8rem; color: #718096;">
+            <strong>Instructions:</strong><br>
+            1. Drag students within columns.<br>
+            2. Seniors only for BNCO.<br>
+            3. Must be BNXO/OPS/CMC first.<br>
+            4. Dbl-click to reset student.<br>
+            5. Use "Download JSON" to save your work externally.
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="compareModal">
+    <div class="modal-content">
+        <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+            <h3>Scenario Comparison</h3>
+            <button class="btn-danger" onclick="closeCompare()">Close</button>
+        </div>
+        <div class="compare-container" id="compareContainer">
+            </div>
+    </div>
+</div>
+
+<div class="error-toast" id="errorToast">Error Message</div>
+
+<script>
+    // --- Data Definitions ---
+
+    // Semesters
+    const SEMESTERS = [
+        { id: 'f25', name: 'Fall 25',  type: 'history', ay: 'AY 25-26' },
+        { id: 's26', name: 'Spr 26',   type: 'history', ay: '' },
+        { id: 'f26', name: 'Fall 26',  type: 'future',  ay: 'AY 26-27' },
+        { id: 's27', name: 'Spr 27',   type: 'future',  ay: '' },
+        { id: 'f27', name: 'Fall 27',  type: 'future',  ay: 'AY 27-28' },
+        { id: 's28', name: 'Spr 28',   type: 'future',  ay: '' },
+        { id: 'f28', name: 'Fall 28',  type: 'future',  ay: 'AY 28-29' }
+    ];
+
+    const BILLETS = ['BNCO', 'BNXO', 'BNOPS', 'CMC', 'MIR'];
+
+    // Eligibility Rules based on Class Year
+    const ELIGIBILITY = {
+        '2026': { canServe: [], seniorIn: [] }, // Only history
+        '2027': { 
+            canServe: ['f26', 's27'], 
+            seniorIn: ['f26', 's27'] 
+        },
+        '2028': { 
+            canServe: ['f26', 's27', 'f27', 's28'], 
+            seniorIn: ['f27', 's28'] 
+        },
+        '2029': { 
+            canServe: ['f27', 's28', 'f28'], 
+            seniorIn: ['f28'] 
+        }
+    };
+
+    // Students
+    const STUDENTS = [
+        // Class 2026 (History Only)
+        { id: 'brackett', name: 'Brackett', class: '2026' },
+        { id: 'lewis',    name: 'Lewis',    class: '2026' },
+        { id: 'truesdale',name: 'Truesdale',class: '2026' },
+        // Class 2027
+        { id: 'tirado',   name: 'Tirado',   class: '2027' },
+        { id: 'warfel',   name: 'Warfel',   class: '2027' },
+        { id: 'diekemper',name: 'Diekemper',class: '2027' },
+        // Class 2028
+        { id: 'maldonado',name: 'Maldonado',class: '2028' },
+        { id: 'murray',   name: 'Murray',   class: '2028' },
+        { id: 'vladimir', name: 'Vladimir', class: '2028' },
+        // Class 2029
+        { id: 'p1_29',    name: 'Placeholder 1', class: '2029' },
+        { id: 'p2_29',    name: 'Placeholder 2', class: '2029' },
+        { id: 'p3_29',    name: 'Placeholder 3', class: '2029' },
+        { id: 'p4_29',    name: 'Placeholder 4', class: '2029' },
+    ];
+
+    // Historical Assignments (Locked)
+    const HISTORY = {
+        'f25': { 'BNCO': 'brackett', 'BNXO': 'lewis', 'BNOPS': 'truesdale', 'CMC': 'diekemper' },
+        's26': { 'BNCO': 'lewis', 'BNXO': 'truesdale', 'BNOPS': 'diekemper', 'CMC': 'tirado' }
+    };
+
+    // Current State
+    let currentScenario = {}; 
+
+    // --- Initialization ---
+
+    function init() {
+        initializeData();
+        renderGrid('mainGrid', currentScenario, true); // true = interactive
+        loadSavedList();
+    }
+
+    function initializeData() {
+        // Build initial structure for future semesters
+        SEMESTERS.forEach(sem => {
+            if(sem.type === 'future') {
+                currentScenario[sem.id] = {
+                    'BNCO': null, 'BNXO': null, 'BNOPS': null, 'CMC': null, 'MIR': []
+                };
+                
+                // Populate MIR with everyone eligible for this semester
+                STUDENTS.forEach(stu => {
+                    const rule = ELIGIBILITY[stu.class];
+                    if (rule && rule.canServe.includes(sem.id)) {
+                        currentScenario[sem.id]['MIR'].push(stu.id);
+                    }
+                });
+            }
+        });
+    }
+
+    // --- Rendering ---
+
+    function renderGrid(containerId, scenarioData, interactive) {
+        const container = document.getElementById(containerId);
+        container.innerHTML = '';
+
+        // 1. Academic Year Headers
+        const spacer = document.createElement('div');
+        spacer.className = 'header-group'; 
+        container.appendChild(spacer);
+
+        // Group headers
+        let div = document.createElement('div'); div.className = 'ac-year-group'; div.innerText = 'AY 25-26'; container.appendChild(div);
+        div = document.createElement('div'); div.className = 'ac-year-group'; div.innerText = 'AY 26-27'; container.appendChild(div);
+        div = document.createElement('div'); div.className = 'ac-year-group'; div.innerText = 'AY 27-28'; container.appendChild(div);
+        div = document.createElement('div'); div.className = 'ac-year-group single'; div.innerText = 'AY 28-29'; container.appendChild(div);
+
+        // 2. Semester Headers
+        container.appendChild(document.createElement('div')); // Row Label Spacer
+        SEMESTERS.forEach(sem => {
+            const el = document.createElement('div');
+            el.className = 'col-header';
+            el.innerText = sem.name;
+            container.appendChild(el);
+        });
+
+        // 3. Grid Rows
+        BILLETS.forEach(billet => {
+            // Row Label
+            const label = document.createElement('div');
+            label.className = 'row-label';
+            label.innerText = billet;
+            container.appendChild(label);
+
+            // Cells
+            SEMESTERS.forEach(sem => {
+                const cell = document.createElement('div');
+                cell.className = `cell ${sem.type === 'history' ? 'locked' : ''} ${billet === 'MIR' ? 'mir-row' : ''}`;
+                cell.dataset.sem = sem.id;
+                cell.dataset.billet = billet;
+
+                if (interactive && sem.type === 'future') {
+                    cell.ondragover = allowDrop;
+                    cell.ondrop = drop;
+                }
+
+                // Fill Content
+                let studentId = null;
+                let isList = false;
+
+                if (sem.type === 'history') {
+                    if (HISTORY[sem.id] && HISTORY[sem.id][billet]) {
+                        studentId = HISTORY[sem.id][billet];
+                    }
+                } else {
+                    // Future
+                    if (billet === 'MIR') {
+                        isList = true;
+                    } else {
+                        studentId = scenarioData[sem.id][billet];
+                    }
+                }
+
+                if (isList) {
+                    const mirList = scenarioData[sem.id]['MIR'] || [];
+                    mirList.forEach(id => {
+                        cell.appendChild(createStudentChip(id, interactive));
+                    });
+                } else if (studentId) {
+                    const chip = createStudentChip(studentId, interactive && sem.type === 'future');
+                    if(interactive && sem.type === 'future') {
+                        chip.ondblclick = () => {
+                           updateScenario(studentId, sem.id, billet, 'MIR');
+                           renderGrid('mainGrid', currentScenario, true);
+                        };
+                        chip.title = "Double click to reset to MIR";
+                    }
+                    cell.appendChild(chip);
+                }
+
+                container.appendChild(cell);
+            });
+        });
+    }
+
+    function createStudentChip(id, draggable) {
+        const student = STUDENTS.find(s => s.id === id);
+        if (!student) return document.createElement('div');
+
+        const chip = document.createElement('div');
+        chip.className = `student c${student.class.substring(2)}`;
+        chip.innerText = student.name;
+        chip.dataset.id = id;
+        
+        if (draggable) {
+            chip.draggable = true;
+            chip.ondragstart = drag;
+        }
+        return chip;
+    }
+
+    // --- Drag & Drop Logic ---
+
+    function drag(ev) {
+        ev.dataTransfer.setData("studentId", ev.target.dataset.id);
+        ev.dataTransfer.setData("sourceSem", ev.target.parentElement.dataset.sem);
+        ev.dataTransfer.setData("sourceBillet", ev.target.parentElement.dataset.billet);
+    }
+
+    function allowDrop(ev) {
+        ev.preventDefault();
+    }
+
+    function drop(ev) {
+        ev.preventDefault();
+        const studentId = ev.dataTransfer.getData("studentId");
+        const sourceSem = ev.dataTransfer.getData("sourceSem");
+        const sourceBillet = ev.dataTransfer.getData("sourceBillet");
+        
+        let target = ev.target;
+        while (!target.classList.contains('cell')) {
+            target = target.parentElement;
+        }
+
+        const targetSem = target.dataset.sem;
+        const targetBillet = target.dataset.billet;
+
+        if (sourceSem !== targetSem) {
+            showError("Please drag students only within their specific semester column.");
+            return;
+        }
+
+        const validation = validateMove(studentId, targetSem, targetBillet);
+        if (!validation.valid) {
+            showError(validation.message);
+            return;
+        }
+
+        updateScenario(studentId, targetSem, sourceBillet, targetBillet);
+        renderGrid('mainGrid', currentScenario, true);
+    }
+
+    // --- Business Logic & Validation ---
+
+    function validateMove(studentId, semester, targetBillet) {
+        if (targetBillet === 'MIR') return { valid: true };
+
+        const student = STUDENTS.find(s => s.id === studentId);
+        
+        // 1. Is the slot occupied?
+        const currentOccupant = currentScenario[semester][targetBillet];
+        if (currentOccupant && currentOccupant !== studentId) {
+            return { valid: false, message: `The ${targetBillet} position is already filled. Move the current holder to MIR first.` };
+        }
+
+        // 2. Rule: Once served in a billet, never serve again.
+        // Check History
+        for (const [histSem, assignments] of Object.entries(HISTORY)) {
+            if (assignments[targetBillet] === studentId) {
+                return { valid: false, message: `${student.name} already served as ${targetBillet} in ${histSem}.` };
+            }
+        }
+        // Check Future (other semesters)
+        for (const [futSem, assignments] of Object.entries(currentScenario)) {
+            if (futSem !== semester && assignments[targetBillet] === studentId) {
+                return { valid: false, message: `${student.name} is already assigned ${targetBillet} in ${futSem}.` };
+            }
+        }
+
+        // 3. Rule: BNCO Logic
+        if (targetBillet === 'BNCO') {
+            // a. Must be Senior
+            const seniors = ELIGIBILITY[student.class].seniorIn;
+            if (!seniors.includes(semester)) {
+                return { valid: false, message: `Only Seniors can be BNCO. Class of ${student.class} is not a Senior in ${semester}.` };
+            }
+
+            // b. Must have served as BNOPS or BNXO (OR CMC)
+            let hasServedPrereq = false;
+            
+            // Check History
+            Object.values(HISTORY).forEach(assignments => {
+                if (assignments['BNXO'] === studentId || assignments['BNOPS'] === studentId || assignments['CMC'] === studentId) hasServedPrereq = true;
+            });
+
+            // Check Future (Must be a PREVIOUS semester)
+            const semOrder = SEMESTERS.findIndex(s => s.id === semester);
+            for(let i=0; i < semOrder; i++) {
+                const checkSemId = SEMESTERS[i].id;
+                if (currentScenario[checkSemId]) {
+                    if (currentScenario[checkSemId]['BNXO'] === studentId || currentScenario[checkSemId]['BNOPS'] === studentId || currentScenario[checkSemId]['CMC'] === studentId) {
+                        hasServedPrereq = true;
+                    }
+                }
+            }
+
+            if (!hasServedPrereq) {
+                return { valid: false, message: `BNCO Prerequisite missing: Must have previously served as BNXO, BNOPS, or CMC.` };
+            }
+        }
+
+        return { valid: true };
+    }
+
+    function updateScenario(studentId, semester, sourceBillet, targetBillet) {
+        // Remove from source
+        if (sourceBillet === 'MIR') {
+            const idx = currentScenario[semester]['MIR'].indexOf(studentId);
+            if (idx > -1) currentScenario[semester]['MIR'].splice(idx, 1);
+        } else {
+            currentScenario[semester][sourceBillet] = null;
+        }
+
+        // Add to target
+        if (targetBillet === 'MIR') {
+            currentScenario[semester]['MIR'].push(studentId);
+        } else {
+            currentScenario[semester][targetBillet] = studentId;
+        }
+    }
+
+    function showError(msg, isSuccess = false) {
+        const el = document.getElementById('errorToast');
+        el.innerText = msg;
+        el.className = 'error-toast show';
+        if(isSuccess) el.classList.add('success');
+        setTimeout(() => el.className = 'error-toast', 3000);
+    }
+
+    function resetBoard() {
+        if(confirm("Are you sure? This will clear current assignments.")) {
+            initializeData();
+            renderGrid('mainGrid', currentScenario, true);
+        }
+    }
+
+    // --- Save & Compare System ---
+
+    function saveScenario() {
+        const nameInput = document.getElementById('scenarioName');
+        const name = nameInput.value.trim() || 'Untitled Scenario';
+        
+        const saveId = Date.now().toString();
+        const savePackage = {
+            id: saveId,
+            name: name,
+            data: JSON.parse(JSON.stringify(currentScenario)), // Deep copy
+            timestamp: new Date().toLocaleString()
+        };
+
+        let saves = JSON.parse(localStorage.getItem('nrotc_saves') || '[]');
+        saves.push(savePackage);
+        localStorage.setItem('nrotc_saves', JSON.stringify(saves));
+        
+        nameInput.value = '';
+        loadSavedList();
+        showError("Scenario Saved!", true); 
+    }
+
+    function loadSavedList() {
+        const list = document.getElementById('savedList');
+        list.innerHTML = '';
+        const saves = JSON.parse(localStorage.getItem('nrotc_saves') || '[]');
+
+        saves.forEach(save => {
+            const li = document.createElement('li');
+            li.className = 'scenario-item';
+            
+            const info = document.createElement('span');
+            info.innerHTML = `<strong>${save.name}</strong><br><small>${save.timestamp}</small>`;
+            
+            const actions = document.createElement('div');
+            
+            // Checkbox for compare
+            const cb = document.createElement('input');
+            cb.type = 'checkbox';
+            cb.value = save.id;
+            cb.style.marginRight = '5px';
+            
+            // Load Button
+            const loadBtn = document.createElement('button');
+            loadBtn.className = 'btn-secondary';
+            loadBtn.innerText = 'Load';
+            loadBtn.style.padding = '4px 8px';
+            loadBtn.style.fontSize = '0.75rem';
+            loadBtn.onclick = () => loadScenario(save.id);
+
+            // Delete Button
+            const delBtn = document.createElement('button');
+            delBtn.innerText = 'X';
+            delBtn.style.color = 'red';
+            delBtn.style.marginLeft = '5px';
+            delBtn.style.padding = '4px 8px';
+            delBtn.style.fontSize = '0.75rem';
+            delBtn.onclick = () => deleteScenario(save.id);
+
+            actions.appendChild(cb);
+            actions.appendChild(loadBtn);
+            actions.appendChild(delBtn);
+
+            li.appendChild(info);
+            li.appendChild(actions);
+            list.appendChild(li);
+        });
+    }
+
+    function loadScenario(id) {
+        const saves = JSON.parse(localStorage.getItem('nrotc_saves') || '[]');
+        const target = saves.find(s => s.id === id);
+        if (target) {
+            currentScenario = JSON.parse(JSON.stringify(target.data));
+            renderGrid('mainGrid', currentScenario, true);
+        }
+    }
+
+    function deleteScenario(id) {
+        let saves = JSON.parse(localStorage.getItem('nrotc_saves') || '[]');
+        saves = saves.filter(s => s.id !== id);
+        localStorage.setItem('nrotc_saves', JSON.stringify(saves));
+        loadSavedList();
+    }
+
+    // --- JSON Export / Import ---
+
+    function exportJSON() {
+        const saves = localStorage.getItem('nrotc_saves');
+        if (!saves || saves === '[]') {
+            showError("No saved scenarios to export.");
+            return;
+        }
+        
+        const blob = new Blob([saves], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        // Filename: nrotc_backup_YYYY-MM-DD.json
+        a.download = `nrotc_backup_${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showError("Backup Downloaded!", true);
+    }
+
+    function importJSON(input) {
+        const file = input.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            try {
+                const data = JSON.parse(e.target.result);
+                
+                // Basic Validation
+                if (!Array.isArray(data)) throw new Error("File format is not a list.");
+                if (data.length > 0 && (!data[0].id || !data[0].data)) throw new Error("Invalid data structure.");
+
+                const userAction = confirm(
+                    `Found ${data.length} scenarios in file.\n\n` +
+                    `Click OK to OVERWRITE existing saves.\n` +
+                    `Click CANCEL to APPEND to existing saves.`
+                );
+
+                if (userAction) {
+                    // Overwrite
+                    localStorage.setItem('nrotc_saves', JSON.stringify(data));
+                } else {
+                    // Append
+                    const current = JSON.parse(localStorage.getItem('nrotc_saves') || '[]');
+                    // Assign new IDs to avoid collisions if appending
+                    data.forEach(s => s.id = Date.now().toString() + Math.random().toString().slice(2,5));
+                    const combined = current.concat(data);
+                    localStorage.setItem('nrotc_saves', JSON.stringify(combined));
+                }
+                
+                loadSavedList();
+                showError("Import Successful!", true);
+            } catch (err) {
+                showError("Import Failed: " + err.message);
+            }
+            input.value = ''; // Reset input so same file can be selected again
+        };
+        reader.readAsText(file);
+    }
+
+    // --- Compare Modal ---
+
+    function openCompare() {
+        const checkboxes = document.querySelectorAll('#savedList input[type="checkbox"]:checked');
+        if (checkboxes.length === 0) {
+            showError("Select at least one scenario to compare.");
+            return;
+        }
+
+        const container = document.getElementById('compareContainer');
+        container.innerHTML = '';
+        const saves = JSON.parse(localStorage.getItem('nrotc_saves') || '[]');
+
+        checkboxes.forEach(cb => {
+            const save = saves.find(s => s.id === cb.value);
+            if(save) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'compare-pane';
+                const title = document.createElement('h4');
+                title.innerText = save.name;
+                title.style.textAlign = 'center';
+                wrapper.appendChild(title);
+                
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'schedule-grid';
+                gridDiv.id = `compare_${save.id}`;
+                
+                wrapper.appendChild(gridDiv);
+                container.appendChild(wrapper);
+
+                renderGrid(`compare_${save.id}`, save.data, false);
+            }
+        });
+
+        document.getElementById('compareModal').style.display = 'block';
+    }
+
+    function closeCompare() {
+        document.getElementById('compareModal').style.display = 'none';
+    }
+
+    // Start
+    init();
+
+</script>
+
+</body>
+</html>
