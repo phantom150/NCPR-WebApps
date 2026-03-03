@@ -8,132 +8,110 @@
     --spring: #e6f7ff;
 }
 
-body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; }
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #f9f9f9; overflow-x: hidden; }
 
-.header { background: #333; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+.header { background: #333; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
 .header h1 { margin: 0; font-size: 20px; }
 .controls button, .btn-upload { background: #555; color: white; border: none; padding: 8px 12px; margin-left: 5px; cursor: pointer; border-radius: 4px; font-size: 14px; display: inline-block; }
-.controls button:hover, .btn-upload:hover { background: #777; }
-.btn-upload input[type="file"] { display: none; }
 
-.legend { padding: 10px 20px; background: white; border-bottom: 1px solid #ddd; display: flex; gap: 15px; flex-wrap: wrap; align-items: center;}
+.legend { padding: 10px 20px; background: white; border-bottom: 1px solid #ddd; display: flex; gap: 15px; flex-wrap: wrap; align-items: center; position: sticky; top: 54px; z-index: 90;}
 .legend-item { display: flex; align-items: center; font-size: 12px; }
-.legend .box { width: 14px; height: 14px; display: inline-block; margin-right: 5px; border: 1px solid #999; border-radius: 2px;}
+.legend .box { width: 14px; height: 14px; display: inline-block; margin-right: 5px; border: 1px solid #999; }
 
+.gantt-container { overflow-x: auto; background: white; position: relative; height: calc(100vh - 120px); }
+
+/* The Grid Setup */
+.gantt-grid { 
+    display: grid; 
+    border-left: 1px solid #ccc;
+    position: relative;
+    /* First col is 180px, others are sized to fit 36 in view */
+    grid-template-columns: 180px repeat(72, minmax(calc((100vw - 220px) / 36), 120px));
+}
+
+/* FROZEN LEFT COLUMN */
+.row-label { 
+    background: white; 
+    position: sticky; 
+    left: 0; 
+    z-index: 30; 
+    padding: 10px; 
+    border-right: 3px solid #666; 
+    font-weight: bold; 
+    font-size: 13px; 
+    box-shadow: 4px 0 6px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+/* STICKY HEADERS */
+.gantt-header-years, .gantt-header-months { 
+    position: sticky; 
+    top: 0; 
+    z-index: 25; 
+    background: #d0d0d0;
+    text-align: center;
+    border-right: 1px solid #bbb;
+    border-bottom: 1px solid #bbb;
+}
+.gantt-header-months { top: 30px; background: #eee; font-size: 10px; padding: 4px 0; z-index: 24;}
+
+/* TODAY LINE */
+.today-col { border-left: 3px solid rgba(255, 0, 0, 0.6) !important; background-color: rgba(255, 255, 0, 0.05) !important; }
+
+/* SHARED STYLES */
 .bg-summer { background: var(--summer); }
 .bg-fall { background: var(--fall); }
 .bg-spring { background: var(--spring); }
-
-.gantt-container { overflow-x: auto; padding: 20px; background: white; }
-.gantt-grid { display: grid; border: 1px solid #ccc; position: relative; min-width: 1300px; }
-
-.gantt-header-years { background: #d0d0d0; font-weight: bold; text-align: center; border-right: 1px solid #bbb; border-bottom: 1px solid #bbb; padding: 5px 0; font-size: 14px; }
-.gantt-header-months { border-right: 1px dashed #ccc; border-bottom: 2px solid #999; padding: 5px 0; font-size: 11px; text-align: center; font-weight: bold; }
-
-.row-label { background: white; position: sticky; left: 0; z-index: 20; padding: 10px; border-right: 2px solid #ccc; font-weight: bold; font-size: 13px; box-shadow: 2px 0 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; justify-content: center;}
-.row-label .unit-badge { font-size: 10px; color: white; padding: 2px 5px; border-radius: 3px; display: inline-block; margin-bottom: 4px; align-self: flex-start;}
-
-.bg-col { border-right: 1px dashed #e0e0e0; z-index: 1; }
+.bg-col { border-right: 1px dashed #e0e0e0; z-index: 1; grid-row-start: 3; }
 
 .bar-segment {
-    align-self: center;
-    height: 26px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 10px;
-    font-weight: bold;
-    color: white;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    border: 1px solid rgba(0,0,0,0.6);
-    box-sizing: border-box;
-    border-radius: 4px;
-    z-index: 5;
-    cursor: pointer;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    transition: transform 0.1s;
-    margin: 2px 0; /* Adds slight breathing room vertically */
+    align-self: center; height: 26px; display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: bold; color: white; border-radius: 4px; z-index: 5; cursor: pointer;
+    margin: 2px 0; border: 1px solid rgba(0,0,0,0.4);
+	position: relative; /* Context for the sticky label */
+    display: block;    /* Changed from flex to block to handle sticky flow better */
+    line-height: 26px; /* Vertical centering */
+    text-align: left;  /* Start labels at the left */
 }
-.bar-segment:hover { transform: scaleY(1.1); z-index: 8; }
-.seg-label { padding: 0 4px; pointer-events: none; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); }
-
-.milestone-marker {
-    align-self: stretch;
-    border-left: 2px dashed;
-    z-index: 10;
-    position: relative;
+.seg-label {
+    position: sticky;
+    left: 190px; /* Label width (180px) + a little padding (10px) */
+    display: inline-block;
+    padding: 0 10px;
+    white-space: nowrap;
+    z-index: 6;
     pointer-events: none;
-    margin-left: 2px;
+    text-shadow: 1px 1px 1px #000;
+    
+    /* Ensure the label doesn't slide out the right side of the bar */
+    max-width: 100%;
+    box-sizing: border-box;
 }
-.milestone-label {
-    position: absolute;
-    left: 2px;
-    font-size: 9px;
-    font-weight: bold;
-    background: rgba(255,255,255,0.95);
-    padding: 1px 3px;
-    border-radius: 2px;
-    border: 1px solid #ccc;
-    box-shadow: 1px 1px 2px rgba(0,0,0,0.2);
-    white-space: nowrap;
-    z-index: 11;
+
+/* Specific fix for the 'Unknown' black text on light bars */
+.bar-segment[style*="#ff"] .seg-label {
+    text-shadow: none;
+    color: black;
 }
+
+.snap-button {
+    position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+    background: var(--duke-blue); color: white; border: none; padding: 10px 20px;
+    border-radius: 20px; cursor: pointer; display: none; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.milestone-marker { border-left: 2px dashed; z-index: 10; position: relative; pointer-events: none; }
+.milestone-label { position: absolute; left: 2px; font-size: 8px; background: white; padding: 1px; border: 1px solid #ccc; z-index: 11; }
 
 .unit-UNC { background: var(--unc-blue); }
 .unit-Duke { background: var(--duke-blue); }
 .unit-NCSU { background: var(--ncsu-red); }
 .unit-NCPR { background: var(--ncpr-gray); }
 
-/* Modal */
-.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100; justify-content: center; align-items: center; }
-.modal-content { background: white; padding: 20px; border-radius: 5px; width: 400px; max-width: 90%; }
-.modal form label { display: block; margin-top: 10px; font-size: 14px; }
-.modal form input, .modal form select { width: 100%; padding: 5px; margin-top: 5px; box-sizing: border-box; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+.modal-content { background: white; padding: 20px; border-radius: 5px; width: 400px; }
 .modal-actions { margin-top: 20px; display: flex; gap: 10px; }
 
-/* ========================================= */
-/* PRINT STYLES - Enhanced for Readability   */
-/* ========================================= */
-@media print {
-    .no-print { display: none !important; }
-    body { 
-        background: white; 
-        -webkit-print-color-adjust: exact !important; 
-        print-color-adjust: exact !important; 
-    }
-    @page { size: landscape; margin: 0.5in; }
-    .gantt-container { overflow: visible; padding: 0; }
-    .gantt-grid { border: 2px solid #000; }
-    
-    /* Boost Font Sizes & Remove Shadows */
-    .row-label { 
-        position: static; 
-        box-shadow: none; 
-        font-size: 12pt; 
-        border-right: 2px solid #000;
-        border-bottom: 1px solid #000;
-    }
-    .gantt-header-years { font-size: 14pt; border-bottom: 2px solid #000; }
-    .gantt-header-months { font-size: 10pt; border-bottom: 2px solid #000; }
-    
-    .bar-segment { 
-        border: 1px solid #000 !important; 
-        box-shadow: none !important; 
-        height: 22px; 
-    }
-    .seg-label { 
-        color: #000 !important; /* Force text to black */
-        font-size: 10pt !important; 
-        font-weight: 900 !important;
-        text-shadow: none !important; /* Remove blurry shadow */
-    }
-    .milestone-label { 
-        font-size: 9pt !important; 
-        border: 1px solid #000 !important; 
-        color: #000 !important; 
-        background: white !important;
-    }
-    .milestone-marker { border-left: 2px dashed #000 !important; }
-}
+@media print { .no-print { display: none !important; } .row-label { position: static; box-shadow: none; } }
