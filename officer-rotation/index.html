@@ -31,8 +31,10 @@
         <div class="legend-item"><span class="box" style="background: #ff9999;"></span> Terminal Leave</div>
     </div>
 
-    <div class="gantt-container" id="ganttContainer">
-        </div>
+    <div class="gantt-container" id="ganttContainer" onscroll="handleScroll()">
+        <button id="snapBtn" class="snap-button no-print" onclick="snapToPresent()">📍 Snap to Today</button>
+        <div id="ganttGridTarget"></div>
+    </div>
 
     <div id="staffModal" class="modal no-print">
         <div class="modal-content">
@@ -48,7 +50,7 @@
                         <option value="NCPR">NCPR Consortium</option>
                     </select>
                 </label>
-                <label>Billet / Designator: <input type="text" id="staffBillet" placeholder="e.g. SWO, Submarine, Aviator" required></label>
+                <label>Billet / Designator: <input type="text" id="staffBillet" required></label>
                 <label>Report Date (YYYY-MM): <input type="month" id="staffReport" required></label>
                 <label>TiHE Completion Date (YYYY-MM): <input type="month" id="staffTihe"></label>
                 <label>PRD / EAOS (YYYY-MM): <input type="month" id="staffPrd" required></label>
