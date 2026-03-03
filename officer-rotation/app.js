@@ -86,34 +86,94 @@ function renderGantt() {
     let currentRowNum = 3;
     for (let key in billets) {
         let staffList = billets[key].sort((a, b) => getMonthIndex(a.report) - getMonthIndex(b.report));
-        let rowSpan = staffList.length;
-        html += `<div class="row-label" style="grid-column: 1; grid-row: ${currentRowNum} / span ${rowSpan};">
-                    <span class="unit-badge unit-${staffList[0].unit}">${staffList[0].unit}</span>
+        let unit = staffList[0].unit;
+        let rowSpan = staffList.length; 
+        
+        // Pre-calculate presence windows for everyone in the billet to make overlap math easy
+        let presenceData = staffList.map(s => {
+            let rIdx = getMonthIndex(s.report);
+            let tIdx = s.tihe ? getMonthIndex(s.tihe) : rIdx;
+            let pIdx = getMonthIndex(s.prd);
+            let sbIdx = s.sb ? getMonthIndex(s.sb) : null;
+            let termIdx = s.terminal ? getMonthIndex(s.terminal) : null;
+            
+            let start = Math.max(rIdx, tIdx); // Active at unit after report/TiHE
+            let end = sbIdx ?? termIdx ?? pIdx; // Leaves unit for SB/Terminal/PRD
+            return { rIdx, tIdx, pIdx, sbIdx, termIdx, start, end };
+        });
+
+        html += `<div style="display: contents;">`;
+        html += `<div class="row-label" style="grid-column: 1; grid-row: ${currentRowNum} / span ${rowSpan}; border-bottom: 2px solid #ccc;">
+                    <span class="unit-badge unit-${unit}">${unit}</span>
                     ${staffList[0].billet}
                  </div>`;
-
+        
         staffList.forEach((s, idx) => {
-            let row = currentRowNum + idx;
-            let rIdx = getMonthIndex(s.report), tIdx = s.tihe ? getMonthIndex(s.tihe) : rIdx, pIdx = getMonthIndex(s.prd);
-            let sbIdx = s.sb ? getMonthIndex(s.sb) : null, termIdx = s.terminal ? getMonthIndex(s.terminal) : null;
-            let wEndIdx = sbIdx ?? termIdx ?? pIdx;
+            let officerRow = currentRowNum + idx;
+            let pd = presenceData[idx];
 
-            let inbStart = Math.max(rIdx, tIdx);
-            let prevEnd = rIdx; 
+            let inbTurnoverStart = pd.start;
+            let inbTurnoverEnd = pd.start;
+            let gapStart = null;
+            let gapEnd = null;
+
+            // Inbound overlap logic against previous officer
             if (idx > 0) {
-                let p = staffList[idx-1];
-                prevEnd = getMonthIndex(p.sb || p.terminal || p.prd);
-                if (prevEnd < inbStart) html += renderBlock(prevEnd, inbStart, 'background:rgba(255,0,0,0.1); border:1px dashed red; color:red;', 'GAP', 'Gap', row, null);
+                let prev = presenceData[idx - 1];
+                if (prev.end > pd.start) {
+                    inbTurnoverStart = pd.start;
+                    inbTurnoverEnd = Math.min(prev.end, pd.end);
+                } else if (prev.end < pd.start) {
+                    gapStart = prev.end;
+                    gapEnd = pd.start;
+                }
             }
-            
+
+            let outTurnoverStart = pd.end;
+            let outTurnoverEnd = pd.end;
+
+            // Outbound overlap logic against next officer
+            if (idx < staffList.length - 1) {
+                let next = presenceData[idx + 1];
+                if (pd.end > next.start) {
+                    outTurnoverStart = Math.max(pd.start, next.start);
+                    outTurnoverEnd = pd.end;
+                }
+            }
+
+            let soloStart = inbTurnoverEnd;
+            let soloEnd = outTurnoverStart;
+
+            // Failsafe for triple-turnover extreme edge cases
+            if (soloEnd < soloStart) { soloEnd = soloStart; outTurnoverStart = soloStart; }
+
+            // Styling
             let uColor = colorMap[s.unit] || "#333";
-            let opacity = s.name.toLowerCase() === "unknown" ? "opacity: 0.6; border: 1px dashed white;" : "";
+            let opacity = s.name.toLowerCase() === "unknown" ? "opacity: 0.6; border: 2px dashed white;" : "";
             
-            html += renderBlock(inbStart, Math.max(inbStart, prevEnd), `background: repeating-linear-gradient(45deg, rgba(255,255,255,0.2), rgba(255,255,255,0.2) 4px, ${uColor} 4px, ${uColor} 8px); ${opacity}`, 'T/O', '', row, s.id);
-            html += renderBlock(Math.max(inbStart, prevEnd), Math.min(wEndIdx, TOTAL_MONTHS), `background: ${uColor}; ${opacity}`, s.name, '', row, s.id);
+            let inbStyle = `background: repeating-linear-gradient(45deg, rgba(255,255,255,0.4), rgba(255,255,255,0.4) 4px, ${uColor} 4px, ${uColor} 8px); ${opacity}`;
+            let soloStyle = `background: ${uColor}; ${opacity}`;
+            let outStyle = `background: repeating-linear-gradient(-45deg, rgba(0,0,0,0.3), rgba(0,0,0,0.3) 4px, ${uColor} 4px, ${uColor} 8px); ${opacity}`;
+            let sbStyle = `background: #ffcc00;`;
+            let termStyle = `background: #ff9999;`;
+
+            // Draw Gap if it exists
+            if (gapStart !== null) html += renderBlock(gapStart, gapEnd, 'background: rgba(255,0,0,0.2); border: 2px dashed red; color: red;', 'GAP', 'Staffing Gap', officerRow, null);
+
+            html += renderBlock(inbTurnoverStart, inbTurnoverEnd, inbStyle, 'Inbound T/O', 'Inbound Turnover Window', officerRow, s.id);
+            html += renderBlock(soloStart, soloEnd, soloStyle, s.name, 'Active Billet', officerRow, s.id);
+            html += renderBlock(outTurnoverStart, outTurnoverEnd, outStyle, 'Outbound T/O', 'Outbound Turnover Window', officerRow, s.id);
+            if (pd.sbIdx !== null) html += renderBlock(pd.sbIdx, pd.termIdx ?? pd.pIdx, sbStyle, 'Skillbridge', 'Skillbridge Window', officerRow, s.id);
+            if (pd.termIdx !== null) html += renderBlock(pd.termIdx, pd.pIdx, termStyle, 'Terminal', 'Terminal Leave', officerRow, s.id);
             
-            html += renderMarker(rIdx, 'blue', 'REP', row, 2);
-            html += renderMarker(pIdx, 'red', 'PRD', row, 20);
+            html += renderMarker(pd.rIdx, 'blue', 'Report', officerRow, 2);
+            if (s.tihe && pd.tIdx !== pd.rIdx) html += renderMarker(pd.tIdx, 'purple', 'TiHE', officerRow, 14);
+            else if (s.tihe) html += renderMarker(pd.tIdx, 'purple', 'TiHE/Rep', officerRow, 14);
+            html += renderMarker(pd.pIdx, 'red', 'PRD', officerRow, 26);
+
+            if (idx < rowSpan - 1) {
+                html += `<div style="grid-column: 2 / -1; grid-row: ${officerRow}; border-bottom: 1px dashed #ddd; pointer-events: none; z-index: 2;"></div>`;
+            }
         });
         currentRowNum += rowSpan;
     }
