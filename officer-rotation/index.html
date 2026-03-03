@@ -41,26 +41,61 @@
             <h2 id="modalTitle">Add Staff Member</h2>
             <form id="staffForm">
                 <input type="hidden" id="staffId">
-                <label>Name (Use "Unknown" for TBD): <input type="text" id="staffName" required></label>
-                <label>Unit: 
-                    <select id="staffUnit">
-                        <option value="UNC">UNC</option>
-                        <option value="Duke">Duke</option>
-                        <option value="NCSU">NCSU</option>
-                        <option value="NCPR">NCPR Consortium</option>
-                    </select>
-                </label>
-                <label>Billet / Designator: <input type="text" id="staffBillet" required></label>
-                <label>Report Date (YYYY-MM): <input type="month" id="staffReport" required></label>
-                <label>TiHE Completion Date (YYYY-MM): <input type="month" id="staffTihe"></label>
-                <label>PRD / EAOS (YYYY-MM): <input type="month" id="staffPrd" required></label>
-                <label>Skillbridge Start (YYYY-MM): <input type="month" id="staffSkillbridge"></label>
-                <label>Terminal Leave Start (YYYY-MM): <input type="month" id="staffTerminal"></label>
+                
+                <div class="form-group full-width">
+                    <label>Name (Use "Unknown" for TBD):</label>
+                    <input type="text" id="staffName" required>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Unit:</label>
+                        <select id="staffUnit">
+                            <option value="UNC">UNC</option>
+                            <option value="Duke">Duke</option>
+                            <option value="NCSU">NCSU</option>
+                            <option value="NCPR">NCPR Consortium</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Billet / Designator:</label>
+                        <input type="text" id="staffBillet" placeholder="e.g. SWO, Aviator" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Report Date:</label>
+                        <input type="month" id="staffReport" required>
+                    </div>
+                    <div class="form-group">
+                        <label>TiHE Completion:</label>
+                        <input type="month" id="staffTihe">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>PRD / EAOS:</label>
+                        <input type="month" id="staffPrd" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Skillbridge Start:</label>
+                        <input type="month" id="staffSkillbridge">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Terminal Leave Start:</label>
+                        <input type="month" id="staffTerminal">
+                    </div>
+                </div>
                 
                 <div class="modal-actions">
-                    <button type="submit">Save</button>
-                    <button type="button" onclick="closeModal()">Cancel</button>
-                    <button type="button" id="deleteBtn" style="background:var(--ncsu-red); display:none;" onclick="deleteStaff()">Delete</button>
+                    <button type="button" id="deleteBtn" class="btn-danger" style="display:none;" onclick="deleteStaff()">Delete</button>
+                    <button type="button" class="btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Save</button>
                 </div>
             </form>
         </div>
